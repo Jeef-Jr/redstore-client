@@ -1,18 +1,9 @@
 const { lua } = require("./lua");
-const api = require("./api");
 const {
   sql,
-  pluck,
-  insert,
   getDatatable,
   setDatatable,
-  createAppointment,
-  after,
 } = require("./mysql");
-const { snowflake, hasPlugin } = require("./config");
-const Warning = require("./Warning");
-const { firstAvailableNumber } = require("./utils");
-const config = require("./config");
 
 const vrp = {};
 
@@ -30,11 +21,32 @@ vrp.isOnline = (id) => {
 
 //
 
+vrp.whiteList = vrp.bank = async (id, status) => {
+  return sql("UPDATE vrp_users SET whitelisted = ? WHERE id=?", [status, id]);
+};
+
 vrp.addBank = vrp.bank = async (id, value) => {
   if (await vrp.isOnline(id)) {
     return lua(`vRP.giveBankMoney(${id}, ${value})`);
   } else {
     return sql("UPDATE vrp_user_moneys SET bank=bank+? WHERE user_id=?", [
+      value,
+      id,
+    ]);
+  }
+};
+
+vrp.removeBank = vrp.removeBank = async (id, value) => {
+  if (await vrp.isOnline(id)) {
+    const money = await lua(`vRP.getBankMoney(${id})`);
+    if (money >= value) {
+      lua(`vRP.setBankMoney(${id}, ${money - value})`);
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return sql("UPDATE vrp_user_moneys SET bank=bank-? WHERE user_id=?", [
       value,
       id,
     ]);
@@ -57,13 +69,13 @@ vrp.addInventory = vrp.addItem = async (id, item, amount) => {
   }
 };
 
+
 vrp.getId = (source) => {
- return lua(`vRP.getUserId(${source})`);
+  return lua(`vRP.getUserId(${source})`);
 };
 
 vrp.getSource = (id) => {
   return lua(`vRP.getUserSource(${id})`);
 };
-
 
 module.exports = vrp;

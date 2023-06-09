@@ -2,12 +2,16 @@ const express = require("express");
 const router = express.Router();
 const vrp = require("../vrp");
 const { sql } = require("../mysql");
-const { columns } = require("../config");
+const { columns, groupsInTable } = require("../config");
 
 // Functions Callback
 
 function getCoords(id, callback) {
   emit("getCoords", id, callback);
+}
+
+function getGroupsAll(callback) {
+  emit("groups", callback);
 }
 
 function messageSuccess(id, message) {
@@ -23,6 +27,22 @@ function messageFail(id, message) {
 }
 
 // Routers
+
+router.post("/whitelist", async (req, res) => {
+  const { id, status } = req.body;
+
+  if (id > 0) {
+    await vrp.whiteList(id, status);
+
+    res.json({
+      info: true,
+    });
+  } else {
+    res.json({
+      info: false,
+    });
+  }
+});
 
 router.post("/placa", async (req, res) => {
   const { id, placa } = req.body;
@@ -69,6 +89,33 @@ router.post("/banco", async (req, res) => {
     res.json({
       mensagem: "bank Add",
     });
+  } else {
+    messageFail(id, "A quantidade é inválida.");
+    res.status(400).json({
+      mensagem: "Not bank Add",
+    });
+  }
+});
+
+router.post("/removeBanco", async (req, res) => {
+  const { id, value } = req.body;
+
+  if (value > 0) {
+    const response = await vrp.removeBank(id, value);
+
+    if (response) {
+      messageFail(
+        id,
+        `Administração removeu <b>R$ ${value} </b> da sua conta.`
+      );
+      res.json({
+        info: true,
+      });
+    } else {
+      res.json({
+        info: false,
+      });
+    }
   } else {
     messageFail(id, "A quantidade é inválida.");
     res.status(400).json({
@@ -143,8 +190,8 @@ router.get("/coords/:id", (req, res) => {
   }
 });
 
-router.delete("/limpartInvUser/:idUser/:IdAdmin", (req, res) => {
-  const { idUser, IdAdmin } = req.params;
+router.delete("/limpartInvUser/:idUser", (req, res) => {
+  const { idUser } = req.params;
 
   const player = vrp.getId(idUser);
 
@@ -154,13 +201,35 @@ router.delete("/limpartInvUser/:idUser/:IdAdmin", (req, res) => {
     });
 
     messageSuccess(idUser, "Seu inventário foi limpado pela administração");
-    messageSuccess(IdAdmin, `Você limpou o inventário do jogador.`);
 
-    res.send();
+    res.json({ info: true });
   } else {
-    messageFail(IdAdmin, "Jogador não encontrado");
-    res.status(404).json({ error: "Jogador não encontrado" });
+    res.json({ info: false });
   }
+});
+
+router.delete("/limparArmas/:idUser", (req, res) => {
+  const { idUser } = req.params;
+
+  const player = vrp.getSource(idUser);
+
+  if (player) {
+    new Promise(() => {
+      emit("limparArmas", idUser, player);
+    });
+
+    messageSuccess(idUser, "Seu armamento foi retirado pela administração");
+
+    res.json({ info: true });
+  } else {
+    res.json({ info: false });
+  }
+});
+
+router.get("/getGroups", (req, res) => {
+  getGroupsAll((groups) => {
+    res.json(groups);
+  });
 });
 
 module.exports = router;

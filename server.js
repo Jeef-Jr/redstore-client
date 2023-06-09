@@ -1,10 +1,6 @@
-const { lua } = require("./src/lua");
 const { connect, ping, sql, after, ...database } = require("./src/mysql");
 
-const api = require("./src/api");
 const utils = require("./src/utils");
-const vrp = require("./src/vrp");
-const Warning = require("./src/Warning");
 const config = require("./config.json");
 const express = require("express");
 const cors = require("cors");
@@ -12,7 +8,7 @@ const app = express();
 const port = 3333;
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:8080'], 
+  origin: ["http://localhost:3000", "http://localhost:8080"],
 };
 
 app.use(express.json());
@@ -30,6 +26,19 @@ async function start() {
 
   console.log("RedStore >> Conectado ao banco de dados!");
   console.log("RedStore Online>>" + GetNumPlayerIndices());
+
+  if (config.groupsInTable) {
+    sql(`CREATE TABLE IF NOT EXISTS redstore_groups (
+      id BIGINT NOT NULL AUTO_INCREMENT,
+      nome varchar(255) NOT NULL DEFAULT 0,
+       permission varchar(255) DEFAULT NULL,
+       permission_2 varchar(255) DEFAULT NULL,
+       permission_3 varchar(255) DEFAULT NULL,
+      permission_4 varchar(255) DEFAULT NULL,
+      permission_5 varchar(255) DEFAULT NULL,
+      PRIMARY KEY (id)
+    )`);
+  }
 
   setInterval(
     () =>
@@ -53,6 +62,12 @@ app.use("/mechanic", mechanicRouter);
 app.use("/admin", adminRouter);
 
 // Natives
+
+app.get("/connection", (req, res) => {
+  res.json({
+    connection: true,
+  });
+});
 
 app.get("/admin/players/online", (req, res) => {
   res.json({ quantidade: GetNumPlayerIndices() });

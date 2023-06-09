@@ -2,7 +2,9 @@ local Tunnel = module("vrp", "lib/Tunnel")
 local Proxy = module("vrp", "lib/Proxy")
 vRP = Proxy.getInterface("vRP")
 vRPclient = Tunnel.getInterface("vRP")
+local cfg = module("vrp", "cfg/groups")
 
+local groups = cfg.groups
 
 local function load_code(code, environment)
   if setfenv and loadstring then
@@ -95,11 +97,34 @@ AddEventHandler("getCoords", function(id, callback)
   else
     callback(nil) -- Retorna nulo se o jogador não for encontrado
   end
-end)  
+end)
+
+RegisterNetEvent("limparArmas")
+AddEventHandler("limparArmas", function(id)
+  local nplayer = vRP.getUserSource(parseInt(id))
+  local user_id = parseInt(id)
+  if user_id then
+    vRPclient.replaceWeapons(nplayer, {})
+  end
+end)
 
 
 RegisterNetEvent("limparInv")
 AddEventHandler("limparInv", function(id)
   local user_id = parseInt(id)
-  vRP.clearInventory(user_id)
+  if user_id then
+    vRP.clearInventory(user_id)
+  end
+end)
+
+
+RegisterNetEvent('groups')
+AddEventHandler('groups', function(callback)
+  local groupsAll = {}
+
+  for v, k in pairs(groups) do
+    table.insert(groupsAll, v)
+  end
+
+  callback(groupsAll)
 end)

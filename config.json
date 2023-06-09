@@ -1,28 +1,28 @@
 {
-    "token": "",
-    "mysql": {
-      "host": "localhost",
-      "port": 3306,
-      "database": "db",
-      "user": "root",
-      "password": ""
-    },
-    "columns": {
-      "vehicles": "vrp_user_vehicles",
-      "priority": "vrp_priority"
-    },
-    "requireOnlineToDelivery": false,
-    "plugins": [""],
-    "chat": {
-      "enabled": true,
-      "global": true,
-      "format": ""
-    },
-    "nui": {
-      "enabled": true,
-      "title": "",
-      "subtitle": ""
-    },
-    "webhook": "link-webhook-discord"
-  }
-  
+  "token": "",
+  "mysql": {
+    "host": "localhost",
+    "port": 3306,
+    "database": "db",
+    "user": "root",
+    "password": ""
+  },
+  "columns": {
+    "vehicles": "vrp_user_vehicles",
+    "priority": "vrp_priority"
+  },
+  "requireOnlineToDelivery": false,
+  "plugins": [""],
+  "chat": {
+    "enabled": true,
+    "global": true,
+    "format": ""
+  },
+  "nui": {
+    "enabled": true,
+    "title": "",
+    "subtitle": ""
+  },
+  "groupsInTable": true,
+  "webhook": "link-webhook-discord"
+}

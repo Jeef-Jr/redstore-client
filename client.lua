@@ -58,3 +58,30 @@ AddEventHandler('spawnarvehicle',function(name)
 end)
 
 
+-- Muda a cor do tab
+
+Citizen.CreateThread(function()
+    ReplaceHudColour(116, 6) -- Vermelho
+end)
+Citizen.CreateThread(function()
+    local ped = PlayerPedId(ped)
+    local nome = GetPlayerName(ped)
+end)
+
+---------
+
+-- Controle de Velocidade ex: /cr 100 = 100 KM
+-----------------------------------------------------------------------------------------------------------------------------------------
+Citizen.CreateThread(function()
+    local ped = PlayerPedId()
+    local veh = GetVehiclePedIsIn(ped,false)
+    local speed = GetEntitySpeed(veh) * 3.6
+    if GetPedInVehicleSeat(veh,-1) == ped and math.ceil(speed) >= 0 and GetEntityModel(veh) ~= -2076478498 and not IsEntityInAir(veh) then
+            SetEntityMaxSpeed(veh,(parseInt(100)/3.6))
+            TriggerEvent("Notify","sucesso","Velocidade máxima travada em <b>100 KM</b>.")
+    end
+end)
+
+
+
+
