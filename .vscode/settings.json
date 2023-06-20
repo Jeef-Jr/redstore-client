@@ -1,5 +1,8 @@
 {
     "Lua.diagnostics.globals": [
         "Map"
+    ],
+    "Lua.diagnostics.disable": [
+        "deprecated"
     ]
 }

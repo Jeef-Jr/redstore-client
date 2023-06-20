@@ -1,0 +1,37 @@
+
+
+__________________________GROUPS DO MODULES_______________________________ 
+
+- Caso você deseja adicionar o método de groups através do banco de dados de vez usar do CFG, primeiramente no config.json coloquei o "groupsInTable" para true,
+após isso vá no seu modules/groups e coloquei o código abaixo: Obs: depois é só substituir os vRP.hasPermission para vRP.hasGroupRedStore
+
+- Adicionar no topo:
+
+vRP.prepare("vRP/get_groups",
+  "SELECT RUG.user_id AS 'user_id', RG.nome AS 'name_group', RGP.permissao AS 'permission' FROM redstore_users_groups AS RUG JOIN redstore_groups AS RG JOIN redstore_groups_permissions AS RGP ON RUG.`group` = RG.id AND RG.id = RGP.idRelation WHERE RUG.user_id = @user_id")
+
+__________________________
+
+Adicionar essa função:
+
+function vRP.hasGroupRedStore(id, permission)
+  local user_id = parseInt(id)
+  if user_id then
+    local groups = vRP.query("vRP/get_groups", { user_id = user_id })
+    for k, v in pairs(groups) do
+      local k_permission = v.permission
+      if k_permission == permission then
+        return true
+      end
+    end
+    return false
+  end
+end
+
+__________________________INVENTORY DO MODULES_______________________________ 
+
+- Adicionar essa função para que o sistema consiga pegar todos os itens da sua base e listar nos paineis.
+
+function vRP.itemListRedStore()
+	return itemlist
+end

@@ -1,15 +1,7 @@
 const { lua } = require("./lua");
-const {
-  sql,
-  getDatatable,
-  setDatatable,
-} = require("./mysql");
+const { sql, getDatatable, setDatatable } = require("./mysql");
 
 const vrp = {};
-
-function now() {
-  return parseInt(Date.now() / 1000);
-}
 
 /**
  *
@@ -69,6 +61,20 @@ vrp.addInventory = vrp.addItem = async (id, item, amount) => {
   }
 };
 
+vrp.getUsersGroupsCFG = async (id) => {
+  const groups = await lua(`vRP.getUserGroups(${id})`);
+  return groups;
+};
+
+vrp.addAmountItem = async (id, item, amount) => {
+  await lua(`vRP.giveInventoryItem(${id}, "${item}", ${amount})`);
+  return true;
+};
+
+vrp.removeAmountItem = async (id, item, amount) => {
+  await lua(`vRP.tryGetInventoryItem(${id}, "${item}", ${amount})`);
+  return true;
+};
 
 vrp.getId = (source) => {
   return lua(`vRP.getUserId(${source})`);
@@ -76,6 +82,18 @@ vrp.getId = (source) => {
 
 vrp.getSource = (id) => {
   return lua(`vRP.getUserSource(${id})`);
+};
+
+vrp.getVehicleAll = async () => {
+  return lua(`vRP.vehicleGlobal()`);
+};
+
+vrp.getIsOnline = async (id) => {
+  if (await vrp.isOnline(id)) {
+    return true;
+  }
+
+  return false;
 };
 
 module.exports = vrp;

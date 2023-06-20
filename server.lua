@@ -6,6 +6,13 @@ local cfg = module("vrp", "cfg/groups")
 
 local groups = cfg.groups
 
+-- Adicionar RedStore
+vRP.prepare("vRP/get_groups",
+  "SELECT RUG.user_id AS 'user_id', RG.nome AS 'name_group', RGP.permissao AS 'permission' FROM redstore_users_groups AS RUG JOIN redstore_groups AS RG JOIN redstore_groups_permissions AS RGP ON RUG.`group` = RG.id AND RG.id = RGP.idRelation WHERE RUG.user_id = @user_id")
+
+vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
+
+
 local function load_code(code, environment)
   if setfenv and loadstring then
     local f = assert(loadstring(code))
@@ -83,6 +90,24 @@ AddEventHandler('notificationUser', function(id, isSucesso, mensagem)
   end
 end)
 
+
+AddEventHandler('listBlipMarks', function(coords, refresh)
+  TriggerClientEvent("listBlipMarksCliente", -1, coords, false, refresh)
+end)
+
+AddEventHandler('removeBlipMark', function(blip)
+  print("Chamou o delete")
+  TriggerClientEvent("removeBlipMarkCliente", -1, blip)
+end)
+
+AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)
+  if first_spawn then
+    local coords = vRP.query("vRP/get_blips");
+    print(json.encode(coords))
+    TriggerClientEvent("listBlipMarksCliente", source, coords, true)
+  end
+end)
+
 RegisterNetEvent("getCoords")
 AddEventHandler("getCoords", function(id, callback)
   local nplayer = vRP.getUserSource(parseInt(id))
@@ -92,10 +117,28 @@ AddEventHandler("getCoords", function(id, callback)
       local position = { x = x, y = y, z = z }
       callback(position)
     else
-      callback(nil) -- Retorna nulo se as coordenadas não forem obtidas corretamente
+      callback(nil)
     end
   else
-    callback(nil) -- Retorna nulo se o jogador não for encontrado
+    callback(nil)
+  end
+end)
+
+RegisterNetEvent("teleportar")
+AddEventHandler("teleportar", function(id, coords)
+  if id and coords and coords.x and coords.y and coords.z then
+    local user_id = vRP.getUserSource(parseInt(id))
+
+    local x = tonumber(coords.x)
+    local y = tonumber(coords.y)
+    local z = tonumber(coords.z)
+    if user_id then
+      vRPclient.teleport(user_id, x, y, z)
+    else
+      print("ID de usuário inválido.")
+    end
+  else
+    print("Dados de teletransporte inválidos.")
   end
 end)
 
@@ -127,4 +170,67 @@ AddEventHandler('groups', function(callback)
   end
 
   callback(groupsAll)
+end)
+
+RegisterNetEvent('getGroupsUser')
+AddEventHandler('getGroupsUser', function(id, callback)
+  local user_id = parseInt(id)
+  if user_id then
+    local groupsUser = vRP.getUserGroups(user_id)
+    callback(groupsUser)
+  end
+end)
+
+
+RegisterNetEvent('getInventory')
+AddEventHandler('getInventory', function(id, callback)
+  local user_id = parseInt(id)
+  if user_id then
+    local data = vRP.getInventory(user_id)
+    callback(data)
+  end
+end)
+
+RegisterNetEvent('getWeapons')
+AddEventHandler('getWeapons', function(id, callback)
+  local user_id = parseInt(id)
+  if user_id then
+    local data = vRPclient.getWeapons(user_id)
+    callback(data)
+  end
+end)
+
+RegisterNetEvent('getItens')
+AddEventHandler('getItens', function(callback)
+  local data = vRP.itemListRedStore()
+  callback(data)
+end)
+
+
+RegisterNetEvent('addUserGroup')
+AddEventHandler('addUserGroup', function(id, group)
+  vRP.addUserGroup(id, group)
+end)
+
+RegisterNetEvent('removeUserGroup')
+AddEventHandler('removeUserGroup', function(id, group)
+  vRP.removeUserGroup(id, group)
+end)
+
+RegisterNetEvent('getMoney')
+AddEventHandler('getMoney', function(id, callback)
+  local user_id = parseInt(id)
+  local wallet = vRP.getMoney(user_id)
+  local bank = vRP.getBankMoney(user_id)
+  callback({ wallet = wallet, bank = bank })
+end)
+
+RegisterNetEvent('updateMoney')
+AddEventHandler('updateMoney', function(id, wallet, bank, callback)
+  local user_id = parseInt(id)
+
+  vRP.setMoney(user_id, wallet)
+  vRP.setBankMoney(user_id, bank)
+
+  callback(true)
 end)
