@@ -8,7 +8,7 @@ const app = express();
 const port = 3333;
 
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["http://189.127.165.179:5173"], // não remover, caso remova esse IP seu servidor ficara invuneravel a requisições.
 };
 
 app.use(express.json());
@@ -92,6 +92,8 @@ app.get("/admin/players/online", (req, res) => {
 
 start().catch(utils.printError);
 
-app.listen(port, () => {
-  console.log(`Servidor escutando na porta ${port}`);
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Servidor iniciado na porta ${port}`);
 });
+

@@ -103,7 +103,6 @@ end)
 AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)
   if first_spawn then
     local coords = vRP.query("vRP/get_blips");
-    print(json.encode(coords))
     TriggerClientEvent("listBlipMarksCliente", source, coords, true)
   end
 end)

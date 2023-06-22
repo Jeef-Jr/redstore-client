@@ -80,7 +80,6 @@ AddEventHandler('removeBlipMarkCliente', function(blip)
 	for i, blipData in ipairs(blips) do
 
 		if blipData.x == targetX and blipData.y == targetY and blipData.z == targetZ then
-			print("removendo blip")
 			RemoveBlip(blipData.blip)
 			table.remove(blips, i)
 			break

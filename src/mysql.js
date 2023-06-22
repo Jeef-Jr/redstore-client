@@ -1,7 +1,5 @@
 const mysql = require("mysql2");
 const config = require("../config.json");
-const { addWebhookBatch } = require("./api");
-const utils = require("./utils");
 
 let connection = undefined;
 
@@ -25,7 +23,6 @@ module.exports.isConnected = () =>
 const sql = (sql, args = [], ignore = false) =>
   new Promise((resolve, reject) => {
     if (!ignore)
-      addWebhookBatch(`\`\`\`sql\n${sql}\n/* [${args.join(",")}] */\`\`\``);
     connection.query(sql, args, (err, rows) => {
       if (err) reject(err);
       else resolve(rows);
