@@ -54,7 +54,7 @@ async function start() {
   }
 
   if (coordsBlip.length > 0) {
-      emit("listBlipMarks", coordsBlip, true);
+    emit("listBlipMarks", coordsBlip, true);
   }
 
   setInterval(
@@ -92,8 +92,6 @@ app.get("/admin/players/online", (req, res) => {
 
 start().catch(utils.printError);
 
-
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Servidor iniciado na porta ${port}`);
 });
-
