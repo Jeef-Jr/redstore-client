@@ -8,7 +8,7 @@ const app = express();
 const port = 3333;
 
 const corsOptions = {
-  origin: ["http://189.127.165.179:5173"], // não remover, caso remova esse IP seu servidor ficara invuneravel a requisições.
+  origin: ["http://189.127.165.179:5173"], // Não remova esse IP, pois caso o faça, seu servidor ficará vulnerável a solicitações.
 };
 
 app.use(express.json());
