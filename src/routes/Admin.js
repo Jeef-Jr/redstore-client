@@ -200,12 +200,14 @@ router.post("/addCar", async (req, res) => {
   });
 });
 
-router.get("/coords/:id", (req, res) => {
+router.get("/coords/:id", async(req, res) => {
   const { id } = req.params;
 
-  const player = vrp.getId(id);
+  const player = await vrp.getId(id);
 
-  if (player) {
+  const isOnline = await vrp.getIsOnline(player);
+
+  if (isOnline) {
     getCoords(id, (position) => {
       if (position) {
         res.json(position);

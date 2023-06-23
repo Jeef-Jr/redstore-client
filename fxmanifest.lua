@@ -15,7 +15,3 @@ server_scripts {
 	"server.lua",
 	"server.js"
 }
-
-
-
-                              

@@ -78,7 +78,6 @@ AddEventHandler('removeBlipMarkCliente', function(blip)
 	local targetZ = tonumber(blip.z)
 
 	for i, blipData in ipairs(blips) do
-
 		if blipData.x == targetX and blipData.y == targetY and blipData.z == targetZ then
 			RemoveBlip(blipData.blip)
 			table.remove(blips, i)
@@ -98,7 +97,7 @@ AddEventHandler('listBlipMarksCliente', function(coords, first_spawn, refresh)
 				AddTextEntry('MYBLIP', v.name)
 				BeginTextCommandSetBlipName('MYBLIP')
 				EndTextCommandSetBlipName(blip)
-				SetBlipAsShortRange(blip,true) 
+				SetBlipAsShortRange(blip, true)
 				SetBlipScale(
 					blip,
 					0.6
@@ -113,7 +112,7 @@ AddEventHandler('listBlipMarksCliente', function(coords, first_spawn, refresh)
 		AddTextEntry('MYBLIP', coords[1].name)
 		BeginTextCommandSetBlipName('MYBLIP')
 		EndTextCommandSetBlipName(blip)
-		SetBlipAsShortRange(blip,true)
+		SetBlipAsShortRange(blip, true)
 		SetBlipScale(
 			blip,
 			0.6
@@ -122,7 +121,3 @@ AddEventHandler('listBlipMarksCliente', function(coords, first_spawn, refresh)
 			{ blip = blip, x = parseFloat(coords[1].x), y = parseFloat(coords[1].y), z = parseFloat(coords[1].z) })
 	end
 end)
-
-
-
-
