@@ -8,7 +8,7 @@ const app = express();
 const port = 3333;
 
 const corsOptions = {
-  origin: ["http://189.127.165.179:5173"], // não remover, caso remova esse IP seu servidor ficara invuneravel a requisições.
+  origin: ["http://localhost:5173"], // não remover, caso remova esse IP seu servidor ficara invuneravel a requisições.
 };
 
 app.use(express.json());
@@ -26,21 +26,6 @@ async function start() {
 
   console.log("RedStore >> Conectado ao banco de dados!");
   console.log("RedStore Online >>> " + GetNumPlayerIndices());
-
-  if (config.groupsInTable) {
-    sql(`CREATE TABLE IF NOT EXISTS redstore_groups (
-      id int(11) NOT NULL AUTO_INCREMENT,
-      nome varchar(255) NOT NULL DEFAULT 0,
-      PRIMARY KEY (id)
-    )
-    `);
-    sql(` CREATE TABLE IF NOT EXISTS redstore_groups_permissions (
-      id int(11) NOT NULL AUTO_INCREMENT,
-      idRelation int(11) DEFAULT NULL,
-      permissao varchar(255) DEFAULT NULL,
-      PRIMARY KEY (id)
-    )`);
-  }
 
   sql(utils.createTableCoords());
   sql(utils.createTableHome());
@@ -84,6 +69,10 @@ app.get("/connection", (req, res) => {
   res.json({
     connection: true,
   });
+});
+
+app.get("/getToken", (req, res) => {
+  res.json({ token: config.token });
 });
 
 app.get("/admin/players/online", (req, res) => {

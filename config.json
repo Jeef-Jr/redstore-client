@@ -1,5 +1,5 @@
 {
-  "token": "",
+  "token": "1505f745-368f-4adf-9974-d63b4554e7a7",
   "mysql": {
     "host": "localhost",
     "port": 3306,
@@ -11,18 +11,6 @@
     "vehicles": "vrp_user_vehicles",
     "priority": "vrp_priority"
   },
-  "requireOnlineToDelivery": false,
-  "plugins": [""],
-  "chat": {
-    "enabled": true,
-    "global": true,
-    "format": ""
-  },
-  "nui": {
-    "enabled": true,
-    "title": "",
-    "subtitle": ""
-  },
-  "groupsInTable": true,
-  "webhook": "link-webhook-discord"
+  "groupsInTable": false, 
+  "webhook": "link-webhook-discord" 
 }
