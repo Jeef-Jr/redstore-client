@@ -11,6 +11,7 @@
     "vehicles": "vrp_user_vehicles",
     "priority": "vrp_priority"
   },
-  "groupsInTable": false, 
+  "groupsInTable": false,
+  "production": false, 
   "webhook": "link-webhook-discord" 
 }

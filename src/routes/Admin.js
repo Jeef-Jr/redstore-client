@@ -344,7 +344,7 @@ router.get("/jogadores", async (req, res) => {
     );
 
     const homes = await sql(
-      `SELECT * FROM vrp_user_homes AS VPH WHERE VPH.user_id = ?`,
+      `SELECT * FROM vrp_homes_permissions AS VPH WHERE VPH.user_id = ?`,
       [id]
     );
 
