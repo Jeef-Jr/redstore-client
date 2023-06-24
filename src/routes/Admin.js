@@ -215,9 +215,7 @@ router.post("/addCar", async (req, res) => {
 router.get("/coords/:id", async (req, res) => {
   const { id } = req.params;
 
-  const player = await vrp.getId(id);
-
-  const isOnline = await vrp.getIsOnline(player);
+  const isOnline = await vrp.getIsOnline(id);
 
   if (isOnline) {
     getCoords(id, (position) => {
