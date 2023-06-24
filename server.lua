@@ -233,3 +233,36 @@ AddEventHandler('updateMoney', function(id, wallet, bank, callback)
 
   callback(true)
 end)
+
+
+RegisterNetEvent('updadeVidaJogador')
+AddEventHandler('updadeVidaJogador', function(id, quantidade, callback)
+  local nplayer = vRP.getUserSource(parseInt(id))
+  if nplayer then
+    vRPclient.setHealth(nplayer, quantidade)
+    callback(true)
+  end
+end)
+
+RegisterNetEvent('updadeVidaJogadores')
+AddEventHandler('updadeVidaJogadores', function(quantidade, callback)
+  local users = vRP.getUsers();
+  for k, v in pairs(users) do
+    local id = vRP.getUserSource(parseInt(k))
+    if id then
+      vRPclient.setHealth(id, quantidade)
+      TriggerClientEvent("Notify", id, "sucesso", "Administração recuperou sua vida.")
+    end
+  end
+  callback(true)
+end)
+
+
+RegisterNetEvent('updadeColeteJogador')
+AddEventHandler('updadeColeteJogador', function(id, callback)
+  local nplayer = vRP.getUserSource(parseInt(id))
+  if nplayer then
+    vRPclient.setArmour(nplayer, 100)
+    callback(true)
+  end
+end)

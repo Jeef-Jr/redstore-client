@@ -49,6 +49,18 @@ function updateMoneyUser(id, wallet, bank, callback) {
   emit("updateMoney", id, wallet, bank, callback);
 }
 
+function updadeVidaJogador(id, quantidade, callback) {
+  emit("updadeVidaJogador", id, quantidade, callback);
+}
+
+function updadeVidaJogadores(quantidade, callback) {
+  emit("updadeVidaJogadores", quantidade, callback);
+}
+
+function updadeColeteJogador(id, callback) {
+  emit("updadeColeteJogador", id, callback);
+}
+
 function messageSuccess(id, message) {
   new Promise(() => {
     emit("emitirNotify", id, "sucesso", message);
@@ -200,7 +212,7 @@ router.post("/addCar", async (req, res) => {
   });
 });
 
-router.get("/coords/:id", async(req, res) => {
+router.get("/coords/:id", async (req, res) => {
   const { id } = req.params;
 
   const player = await vrp.getId(id);
@@ -625,6 +637,67 @@ router.put("/updateMoney/:id", async (req, res) => {
     );
 
     res.json({ info: true });
+  }
+});
+
+router.post("/vidaPlayer", async (req, res) => {
+  const { id, quantidade } = req.body;
+  if (await vrp.isOnline(id)) {
+    updadeVidaJogador(id, quantidade, (callback) => {
+      if (callback) {
+        res.json({
+          info: true,
+        });
+        messageSuccess(id, "Administração te gerou uma quantidade de vida.");
+      } else {
+        res.json({
+          info: false,
+        });
+      }
+    });
+  } else {
+    res.json({
+      info: false,
+    });
+  }
+});
+
+router.post("/vidaPlayers", async (req, res) => {
+  const { quantidade } = req.body;
+
+  updadeVidaJogadores(quantidade, (callback) => {
+    if (callback) {
+      res.json({
+        info: true,
+      });
+    } else {
+      res.json({
+        info: false,
+      });
+    }
+  });
+});
+
+router.post("/coletePlayer", async (req, res) => {
+  const { id } = req.body;
+
+  if (await vrp.isOnline(id)) {
+    updadeColeteJogador(parseInt(id), (callback) => {
+      if (callback) {
+        res.json({
+          info: true,
+        });
+        messageSuccess(id, "Administração te gerou um colete.");
+      } else {
+        res.json({
+          info: false,
+        });
+      }
+    });
+  } else {
+    res.json({
+      info: false,
+    });
   }
 });
 
