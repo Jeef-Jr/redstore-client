@@ -70,6 +70,11 @@ function tpToMeJogador(id, idJogador, callback) {
 }
 
 
+function tpToWayJogador(id, callback) {
+  emit("tpToWayJogador", id, callback);
+}
+
+
 function messageSuccess(id, message) {
   new Promise(() => {
     emit("emitirNotify", id, "sucesso", message);
@@ -739,6 +744,31 @@ router.post("/tpToMeJogador", async (req, res) => {
     tpToMeJogador(parseInt(myId), parseInt(idJogador), (callback) => {
       if (callback) {
         messageSuccess(idJogador, "Administração realizou o teletransporte.");
+        res.json({
+          info: true,
+        });
+      } else {
+        res.json({
+          info: false,
+        });
+      }
+    });
+  } else {
+    res.json({
+      info: false,
+    });
+  }
+});
+
+
+router.post("/tpToWayJogador", async (req, res) => {
+  const { id } = req.body;
+
+  if (await vrp.isOnline(id)) {
+
+    tpToWayJogador(parseInt(id), (callback) => {
+      if (callback) {
+        messageSuccess(id, "Administração realizou o teletransporte.");
         res.json({
           info: true,
         });

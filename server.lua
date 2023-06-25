@@ -272,18 +272,28 @@ AddEventHandler('tpToJogador', function(id, idJogador, callback)
   local nplayer = vRP.getUserSource(parseInt(id))
   local tplayer = vRP.getUserSource(parseInt(idJogador))
   if tplayer then
-    vRPclient.teleport(nplayer,vRPclient.getPosition(tplayer))
+    vRPclient.teleport(nplayer, vRPclient.getPosition(tplayer))
     callback(true)
   end
-end) 
+end)
 
 RegisterNetEvent('tpToMeJogador')
 AddEventHandler('tpToMeJogador', function(id, idJogador, callback)
   local nplayer = vRP.getUserSource(parseInt(id))
   local tplayer = vRP.getUserSource(parseInt(idJogador))
   if tplayer then
-    local x,y,z = vRPclient.getPosition(nplayer)
-    vRPclient.teleport(tplayer,x,y,z)
+    local x, y, z = vRPclient.getPosition(nplayer)
+    vRPclient.teleport(tplayer, x, y, z)
     callback(true)
   end
-end) 
+end)
+
+
+RegisterNetEvent('tpToWayJogador')
+AddEventHandler('tpToWayJogador', function(id, callback)
+  local nplayer = vRP.getUserSource(parseInt(id))
+  if nplayer then
+    TriggerClientEvent('tptoway', nplayer)
+    callback(true)
+  end
+end)
