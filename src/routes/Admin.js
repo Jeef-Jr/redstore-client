@@ -57,9 +57,18 @@ function updadeVidaJogadores(quantidade, callback) {
   emit("updadeVidaJogadores", quantidade, callback);
 }
 
-function updadeColeteJogador(id, callback) {
-  emit("updadeColeteJogador", id, callback);
+function updateColeteJogador(id, callback) {
+  emit("updateColeteJogador", id, callback);
 }
+
+function tpToJogador(id, idJogador, callback) {
+  emit("tpToJogador", id, idJogador, callback);
+}
+
+function tpToMeJogador(id, idJogador, callback) {
+  emit("tpToMeJogador", id, idJogador, callback);
+}
+
 
 function messageSuccess(id, message) {
   new Promise(() => {
@@ -680,7 +689,7 @@ router.post("/coletePlayer", async (req, res) => {
   const { id } = req.body;
 
   if (await vrp.isOnline(id)) {
-    updadeColeteJogador(parseInt(id), (callback) => {
+    updateColeteJogador(parseInt(id), (callback) => {
       if (callback) {
         res.json({
           info: true,
@@ -698,5 +707,53 @@ router.post("/coletePlayer", async (req, res) => {
     });
   }
 });
+
+router.post("/tpToJogador", async (req, res) => {
+  const { myId, idJogador } = req.body;
+
+  if (await vrp.isOnline(idJogador)) {
+
+    tpToJogador(parseInt(myId), parseInt(idJogador), (callback) => {
+      if (callback) {
+        res.json({
+          info: true,
+        });
+      } else {
+        res.json({
+          info: false,
+        });
+      }
+    });
+  } else {
+    res.json({
+      info: false,
+    });
+  }
+});
+
+router.post("/tpToMeJogador", async (req, res) => {
+  const { myId, idJogador } = req.body;
+
+  if (await vrp.isOnline(idJogador)) {
+
+    tpToMeJogador(parseInt(myId), parseInt(idJogador), (callback) => {
+      if (callback) {
+        messageSuccess(idJogador, "Administração realizou o teletransporte.");
+        res.json({
+          info: true,
+        });
+      } else {
+        res.json({
+          info: false,
+        });
+      }
+    });
+  } else {
+    res.json({
+      info: false,
+    });
+  }
+});
+
 
 module.exports = router;

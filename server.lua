@@ -258,11 +258,32 @@ AddEventHandler('updadeVidaJogadores', function(quantidade, callback)
 end)
 
 
-RegisterNetEvent('updadeColeteJogador')
-AddEventHandler('updadeColeteJogador', function(id, callback)
+RegisterNetEvent('updateColeteJogador')
+AddEventHandler('updateColeteJogador', function(id, callback)
   local nplayer = vRP.getUserSource(parseInt(id))
   if nplayer then
     vRPclient.setArmour(nplayer, 100)
     callback(true)
   end
 end)
+
+RegisterNetEvent('tpToJogador')
+AddEventHandler('tpToJogador', function(id, idJogador, callback)
+  local nplayer = vRP.getUserSource(parseInt(id))
+  local tplayer = vRP.getUserSource(parseInt(idJogador))
+  if tplayer then
+    vRPclient.teleport(nplayer,vRPclient.getPosition(tplayer))
+    callback(true)
+  end
+end) 
+
+RegisterNetEvent('tpToMeJogador')
+AddEventHandler('tpToMeJogador', function(id, idJogador, callback)
+  local nplayer = vRP.getUserSource(parseInt(id))
+  local tplayer = vRP.getUserSource(parseInt(idJogador))
+  if tplayer then
+    local x,y,z = vRPclient.getPosition(nplayer)
+    vRPclient.teleport(tplayer,x,y,z)
+    callback(true)
+  end
+end) 
