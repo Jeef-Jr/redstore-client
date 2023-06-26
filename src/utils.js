@@ -3,6 +3,7 @@ module.exports.createTableCoords = () => {
   CREATE TABLE IF NOT EXISTS redstore_coords (
 	id int(11) NOT NULL AUTO_INCREMENT,
 	tipo tinyint(4) NOT NULL DEFAULT 0,
+	name varchar(50) DEFAULT NULL,
 	x varchar(255) NOT NULL DEFAULT '0',
 	y varchar(255) NOT NULL DEFAULT '0',
 	z varchar(255) NOT NULL DEFAULT '0',

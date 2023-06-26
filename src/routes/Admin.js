@@ -345,7 +345,7 @@ router.delete("/limparArmas/:idUser", (req, res) => {
 
 router.get("/jogadores", async (req, res) => {
   const dados = await sql(
-    `SELECT id, whitelisted, banned, garagem FROM vrp_users`
+    `SELECT * FROM vrp_users`
   );
 
   let usersInformations = [];
@@ -378,20 +378,12 @@ router.get("/jogadores", async (req, res) => {
       inventory.push(callback);
     });
 
-    const groupsCFG = await vrp.getUsersGroupsCFG(id);
-
-    const groupsRedStore = await sql(
-      `SELECT RG.nome FROM redstore_groups AS RG JOIN redstore_users_groups AS RUG ON RG.id = RUG.group WHERE RUG.user_id = ?`,
-      [id]
-    );
-
     const isOnline = await vrp.getIsOnline(id);
 
     usersInformations.push({
       users: users,
       playerOnline: isOnline,
       identities: identities.length > 0 ? identities[0] : [],
-      // groups: !groupsInTable ? groupsCFG : groupsRedStore,
       money: money.length > 0 ? money[0] : [],
       vehicles: vehicles ?? [],
       homes: homes ?? [],

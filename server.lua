@@ -7,8 +7,8 @@ local cfg = module("vrp", "cfg/groups")
 local groups = cfg.groups
 
 -- Adicionar RedStore
-vRP.prepare("vRP/get_groups",
-  "SELECT RUG.user_id AS 'user_id', RG.nome AS 'name_group', RGP.permissao AS 'permission' FROM redstore_users_groups AS RUG JOIN redstore_groups AS RG JOIN redstore_groups_permissions AS RGP ON RUG.`group` = RG.id AND RG.id = RGP.idRelation WHERE RUG.user_id = @user_id")
+-- vRP.prepare("vRP/get_groups",
+--   "SELECT RUG.user_id AS 'user_id', RG.nome AS 'name_group', RGP.permissao AS 'permission' FROM redstore_users_groups AS RUG JOIN redstore_groups AS RG JOIN redstore_groups_permissions AS RGP ON RUG.`group` = RG.id AND RG.id = RGP.idRelation WHERE RUG.user_id = @user_id")
 
 vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
 

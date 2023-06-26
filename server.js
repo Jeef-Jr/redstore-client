@@ -7,6 +7,7 @@ const cors = require("cors");
 const app = express();
 const port = 3333;
 
+
 const corsOptions = {
   origin: [config.production ? "http://189.127.165.179:5173" : "http://localhost:5173"], // Não remova esse IP, pois caso o faça, seu servidor ficará vulnerável a solicitações.
 };
@@ -42,6 +43,10 @@ async function start() {
     emit("listBlipMarks", coordsBlip, true);
   }
 
+
+
+
+
   setInterval(
     () =>
       ping((err) => {
@@ -59,6 +64,7 @@ async function start() {
 
 const adminRouter = require("./src/routes/Admin");
 const mechanicRouter = require("./src/routes/Mechanic");
+const { default: axios } = require("axios");
 
 app.use("/mechanic", mechanicRouter);
 app.use("/admin", adminRouter);

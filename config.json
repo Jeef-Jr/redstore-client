@@ -1,5 +1,5 @@
 {
-  "token": "1505f745-368f-4adf-9974-d63b4554e7a7",
+  "token": "seu-token",
   "mysql": {
     "host": "localhost",
     "port": 3306,
@@ -12,6 +12,6 @@
     "priority": "vrp_priority"
   },
   "groupsInTable": false,
-  "production": false, 
+  "production": true, 
   "webhook": "link-webhook-discord" 
 }
