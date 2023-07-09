@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const vrp = require("../vrp");
 const { sql } = require("../mysql");
-const { columns, groupsInTable } = require("../config");
+const { columns, groupsInTable, base_creative } = require("../config");
 const { lua } = require("../lua");
+const creative = require("../creative");
 
 // Functions Callback
 
@@ -69,11 +70,9 @@ function tpToMeJogador(id, idJogador, callback) {
   emit("tpToMeJogador", id, idJogador, callback);
 }
 
-
 function tpToWayJogador(id, callback) {
   emit("tpToWayJogador", id, callback);
 }
-
 
 function messageSuccess(id, message) {
   new Promise(() => {
@@ -87,13 +86,29 @@ function messageFail(id, message) {
   });
 }
 
+async function generateSerial() {
+  const serial = await lua(`vRP.GenerateString("LDLDLDLDLD")`);
+
+  const consult = await sql(`SELECT * FROM propertys WHERE Serial = ?`, [
+    serial,
+  ]);
+
+  if (consult.length > 0) {
+    generateSerial();
+  } else {
+    return serial;
+  }
+}
+
 // Routers
 
 router.post("/whitelist", async (req, res) => {
   const { id, status } = req.body;
 
   if (id > 0) {
-    await vrp.whiteList(id, status);
+    base_creative
+      ? await creative.whiteList(id, status)
+      : await vrp.whiteList(id, status);
 
     res.json({
       info: true,
@@ -118,7 +133,9 @@ router.post("/inventory", async (req, res) => {
   const { id, item, quantidades } = req.body;
 
   if (quantidades > 0) {
-    await vrp.addInventory(id, item, quantidades);
+    base_creative
+      ? await creative.addAmountItem(id, item, quantidades)
+      : await vrp.addInventory(id, item, quantidades);
 
     messageSuccess(
       id,
@@ -143,7 +160,9 @@ router.post("/banco", async (req, res) => {
   const { id, value } = req.body;
 
   if (value > 0) {
-    await vrp.addBank(id, value);
+    base_creative
+      ? await creative.bank(id, value)
+      : await vrp.addBank(id, value);
 
     messageSuccess(id, `Foi adicionado <b>R$ ${value} </b> na sua conta.`);
 
@@ -162,7 +181,9 @@ router.post("/removeBanco", async (req, res) => {
   const { id, value } = req.body;
 
   if (value > 0) {
-    const response = await vrp.removeBank(id, value);
+    const response = base_creative
+      ? await creative.removeBank(id, value)
+      : await vrp.removeBank(id, value);
 
     if (response) {
       messageFail(
@@ -201,7 +222,9 @@ router.post("/addCar", async (req, res) => {
   const { idRecebidor, vehicle } = req.body;
 
   const dados = await sql(
-    `SELECT * FROM ${columns.vehicles} AS VH WHERE VH.user_id = ${idRecebidor} AND VH.vehicle = '${vehicle}'`
+    `SELECT * FROM ${columns.vehicles} AS VH WHERE ${
+      base_creative ? "VH.Passport" : "VH.user_id"
+    } = ${idRecebidor} AND VH.vehicle = '${vehicle}'`
   );
 
   if (dados.length > 0) {
@@ -213,7 +236,17 @@ router.post("/addCar", async (req, res) => {
   }
 
   await sql(
-    `INSERT INTO ${columns.vehicles} (user_id, vehicle, ipva) VALUES (${idRecebidor}, '${vehicle}', NOW())`
+    `INSERT INTO ${columns.vehicles} ${
+      !base_creative
+        ? "(user_id, vehicle, ipva)"
+        : "(Passport, vehicle, tax, plate, work)"
+    } VALUES ${
+      base_creative
+        ? `(${idRecebidor}, '${vehicle}', 1689186484, '${await lua(
+            `vRP.GeneratePlate()`
+          )}', 'false')`
+        : `${idRecebidor}, '${vehicle}', NOW()`
+    }`
   );
 
   messageSuccess(
@@ -229,7 +262,9 @@ router.post("/addCar", async (req, res) => {
 router.get("/coords/:id", async (req, res) => {
   const { id } = req.params;
 
-  const isOnline = await vrp.getIsOnline(id);
+  const isOnline = base_creative
+    ? await creative.isOnline(id)
+    : await vrp.getIsOnline(id);
 
   if (isOnline) {
     getCoords(id, (position) => {
@@ -310,7 +345,9 @@ router.post("/teleportar", async (req, res) => {
 router.delete("/limpartInvUser/:idUser", (req, res) => {
   const { idUser } = req.params;
 
-  const player = vrp.getId(idUser);
+  const player = base_creative
+    ? creative.getPassaport(idUser)
+    : vrp.getId(idUser);
 
   if (player) {
     new Promise(() => {
@@ -345,7 +382,7 @@ router.delete("/limparArmas/:idUser", (req, res) => {
 
 router.get("/jogadores", async (req, res) => {
   const dados = await sql(
-    `SELECT * FROM vrp_users`
+    base_creative ? `SELECT * FROM accounts` : `SELECT * FROM vrp_users`
   );
 
   let usersInformations = [];
@@ -354,21 +391,27 @@ router.get("/jogadores", async (req, res) => {
     const id = users.id;
 
     const identities = await sql(
-      `SELECT * FROM vrp_user_identities WHERE user_id=?`,
+      base_creative
+        ? `SELECT * FROM characters WHERE id=?`
+        : `SELECT * FROM vrp_user_identities WHERE user_id=?`,
       [id]
     );
 
-    const money = await sql(`SELECT * FROM vrp_user_moneys WHERE user_id=?`, [
-      id,
-    ]);
+    const money = !base_creative
+      ? await sql(`SELECT * FROM vrp_user_moneys WHERE user_id=?`, [id])
+      : identities.bank;
 
     const vehicles = await sql(
-      `SELECT * FROM vrp_user_vehicles WHERE user_id=?`,
+      `SELECT * FROM ${columns.vehicles} WHERE ${
+        base_creative ? "Passport" : "user_id"
+      } =?`,
       [id]
     );
 
     const homes = await sql(
-      `SELECT * FROM vrp_homes_permissions AS VPH WHERE VPH.user_id = ? AND VPH.owner = 1`,
+      base_creative
+        ? `SELECT * FROM ${columns.priority} AS P WHERE P.Passport = ?`
+        : `SELECT * FROM ${columns.priority} AS VPH WHERE VPH.user_id = ? AND VPH.owner = 1`,
       [id]
     );
 
@@ -378,13 +421,15 @@ router.get("/jogadores", async (req, res) => {
       inventory.push(callback);
     });
 
-    const isOnline = await vrp.getIsOnline(id);
+    const isOnline = base_creative
+      ? await creative.isOnline(id)
+      : await vrp.getIsOnline(id);
 
     usersInformations.push({
       users: users,
       playerOnline: isOnline,
       identities: identities.length > 0 ? identities[0] : [],
-      money: money.length > 0 ? money[0] : [],
+      money: base_creative ? identities.bank : money.length > 0 ? money[0] : [],
       vehicles: vehicles ?? [],
       homes: homes ?? [],
       inventory: inventory ?? [],
@@ -397,7 +442,9 @@ router.get("/jogadores", async (req, res) => {
 router.post("/item/add", async (req, res) => {
   const { id, item, amount } = req.body;
 
-  const response = await vrp.addAmountItem(id, item, amount);
+  const response = base_creative
+    ? await creative.addAmountItem(id, item, amount)
+    : await vrp.addAmountItem(id, item, amount);
 
   if (response) {
     messageSuccess(
@@ -415,7 +462,9 @@ router.post("/item/add", async (req, res) => {
 router.post("/item/remove", async (req, res) => {
   const { id, item, amount } = req.body;
 
-  const response = await vrp.removeAmountItem(id, item, amount);
+  const response = base_creative
+    ? await creative.removeAmountItem(id, item, amount)
+    : await vrp.removeAmountItem(id, item, amount);
 
   if (response) {
     messageFail(
@@ -439,9 +488,15 @@ router.get("/getGroups", (req, res) => {
 router.get("/getGroups/:id", async (req, res) => {
   const { id } = req.params;
 
-  getGroupsUser(id, (callback) => {
-    res.json(callback);
-  });
+  if (base_creative) {
+    const groups = await creative.getGroups(id);
+
+    res.json(groups);
+  } else {
+    getGroupsUser(id, (callback) => {
+      res.json(callback);
+    });
+  }
 });
 
 router.get("/getItens", (req, res) => {
@@ -463,7 +518,9 @@ router.get("/inventory/user/:id", async (req, res) => {
 });
 
 router.get("/vehiclesAll", async (req, res) => {
-  const vehicles = await vrp.getVehicleAll();
+  const vehicles = base_creative
+    ? await creative.getVehicleAll()
+    : await vrp.getVehicleAll();
 
   res.json(vehicles);
 });
@@ -472,7 +529,9 @@ router.get("/vehiclesUser/:id", async (req, res) => {
   const { id } = req.params;
 
   const vehicles = await sql(
-    `SELECT * FROM vrp_user_vehicles WHERE user_id=?`,
+    `SELECT * FROM ${columns.vehicles} WHERE ${
+      base_creative ? "Passport" : "user_id"
+    } =?`,
     [id]
   );
 
@@ -497,10 +556,24 @@ router.post("/groupAdd", async (req, res) => {
   res.json({ info: true });
 });
 
+router.post("/groupAddC", async (req, res) => {
+  const { id, group, hierarquia } = req.body;
+
+  await creative.addGroup(id, group, hierarquia);
+
+  messageSuccess(id, `Administração te colocou no grupo: <b> ${group}</b>`);
+
+  res.json({ info: true });
+});
+
 router.post("/groupRemove", async (req, res) => {
   const { id, group } = req.body;
 
-  removeUserGroup(id, group);
+  if (base_creative) {
+    await creative.removeGroup(id, group);
+  } else {
+    removeUserGroup(id, group);
+  }
 
   messageFail(id, `Administração te removeu no grupo: <b> ${group} </b>`);
 
@@ -511,7 +584,7 @@ router.post("/vehicleUserRemove", async (req, res) => {
   const { id, vehicle } = req.body;
 
   await sql(
-    `DELETE FROM vrp_user_vehicles WHERE user_id = ? AND vehicle = ? `,
+    `DELETE FROM ${columns.vehicles} WHERE user_id = ? AND vehicle = ? `,
     [id, vehicle]
   );
 
@@ -524,31 +597,68 @@ router.post("/vehicleUserRemove", async (req, res) => {
 });
 
 router.get("/homesAll", async (req, res) => {
-  const response = await sql(`SELECT RH.*, VHP.home AS 'home_use'
-  FROM redstore_homes RH
-  LEFT JOIN vrp_homes_permissions VHP ON RH.home = VHP.home`);
+  if (base_creative) {
+    const response = await sql(`SELECT RH.*, CHP.Name AS 'home_use'
+    FROM redstore_homes RH
+    LEFT JOIN ${columns.priority} CHP ON RH.home = CHP.Name`);
+    res.json(response);
+  } else {
+    const response = await sql(`SELECT RH.*, VHP.home AS 'home_use'
+    FROM redstore_homes RH
+    LEFT JOIN ${columns.priority} VHP ON RH.home = VHP.home`);
 
-  res.json(response);
+    res.json(response);
+  }
 });
 
 router.get("/homesUser/:id", async (req, res) => {
   const { id } = req.params;
 
   const response = await sql(
-    `SELECT * FROM vrp_homes_permissions WHERE user_id = ?`,
+    `SELECT * FROM ${columns.priority} WHERE ${
+      base_creative ? "Passport" : "user_id"
+    } = ?`,
     [id]
   );
 
   res.json(response);
 });
 
-router.post("/homeAdd", async (req, res) => {
-  const { id, home } = req.body;
+router.get("/interiores", async (req, res) => {
+  const interiores = await sql(`SELECT * FROM redstore_homes_interior`);
 
-  await sql(
-    `INSERT INTO vrp_homes_permissions (home, user_id, owner, tax, garage) VALUES (?, ?, ?, ?, ?)`,
-    [home, id, 1, 1686884705, 1]
-  );
+  res.json(interiores);
+});
+
+router.post("/homeAdd", async (req, res) => {
+  const { id, home, interior } = req.body;
+  if (base_creative) {
+    const serial = await generateSerial();
+    await creative.addAmountItem(id, `propertys-${serial}`, 3);
+
+    const information = await sql(
+      `SELECT * FROM redstore_homes_interior WHERE name = ?`,
+      [interior]
+    );
+
+    await sql(
+      `INSERT INTO ${columns.priority} (Name, Interior, Tax, Passport, Serial, Vault, Fridge) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        home.toString(),
+        interior.toString(),
+        1691525913,
+        parseInt(id),
+        serial.toString(),
+        parseInt(information[0].vault),
+        parseInt(information[0].fridge),
+      ]
+    );
+  } else {
+    await sql(
+      `INSERT INTO ${columns.priority} (home, user_id, owner, tax, garage) VALUES (?, ?, ?, ?, ?)`,
+      [home, id, 1, 1686884705, 1]
+    );
+  }
 
   messageSuccess(
     id,
@@ -564,7 +674,9 @@ router.post("/homeRemove", async (req, res) => {
   const { id, home } = req.body;
 
   await sql(
-    `DELETE FROM vrp_homes_permissions WHERE home = ? AND user_id = ?`,
+    `DELETE FROM ${columns.priority} WHERE ${
+      base_creative ? "Name" : "home"
+    } = ? AND ${base_creative ? "Passport" : "user_id"} = ?`,
     [home, id]
   );
 
@@ -578,11 +690,19 @@ router.post("/homeRemove", async (req, res) => {
 router.put("/updateIdentities", async (req, res) => {
   const { id, registration, phone, sobrenome, nome, idade } = req.body;
 
-  await sql(
-    `UPDATE vrp_user_identities SET registration = ?, phone = ?, firstname = ?, name = ?, age = ? WHERE user_id = ?
-    `,
-    [registration, phone, sobrenome, nome, idade, id]
-  );
+  if (base_creative) {
+    await sql(
+      `UPDATE characters SET phone = ?, name = ?, name2 = ?, age = ? WHERE id = ?
+      `,
+      [phone, nome, sobrenome, idade, id]
+    );
+  } else {
+    await sql(
+      `UPDATE vrp_user_identities SET registration = ?, phone = ?, firstname = ?, name = ?, age = ? WHERE user_id = ?
+      `,
+      [registration, phone, sobrenome, nome, idade, id]
+    );
+  }
 
   messageFail(id, `Administração atualizou sua identidade.`);
 
@@ -595,7 +715,9 @@ router.get("/identities/:id", async (req, res) => {
   const { id } = req.params;
 
   const identities = await sql(
-    `SELECT * FROM vrp_user_identities WHERE user_id=?`,
+    `SELECT * FROM ${
+      base_creative ? "characters" : "vrp_user_identities"
+    } WHERE ${base_creative ? "id" : "user_id"}=?`,
     [id]
   );
 
@@ -610,9 +732,12 @@ router.get("/getMoney/:id", async (req, res) => {
       res.json(callback);
     });
   } else {
-    const money = await sql(`SELECT * FROM vrp_user_moneys WHERE user_id=?`, [
-      id,
-    ]);
+    const money = await sql(
+      `SELECT * FROM ${
+        base_creative ? "characters" : "vrp_user_moneys"
+      } WHERE ${base_creative ? "id" : "user_id"}=?`,
+      [id]
+    );
 
     res.json(...money);
   }
@@ -622,7 +747,7 @@ router.put("/updateMoney/:id", async (req, res) => {
   const { id } = req.params;
   const { wallet, bank } = req.body;
 
-  if (await vrp.isOnline(id)) {
+  if (base_creative ? await creative.isOnline(id) : await vrp.isOnline(id)) {
     updateMoneyUser(id, wallet, bank, (callback) => {
       if (callback) {
         messageSuccess(
@@ -634,11 +759,19 @@ router.put("/updateMoney/:id", async (req, res) => {
       }
     });
   } else {
-    await sql(
-      `UPDATE vrp_user_moneys SET wallet = ?, bank = ? WHERE user_id = ?
+    if (base_creative) {
+      await sql(
+        `UPDATE characters SET bank = ? WHERE id = ?
       `,
-      [wallet, bank, id]
-    );
+        [bank, id]
+      );
+    } else {
+      await sql(
+        `UPDATE vrp_user_moneys SET wallet = ?, bank = ? WHERE user_id = ?
+      `,
+        [wallet, bank, id]
+      );
+    }
 
     res.json({ info: true });
   }
@@ -646,7 +779,7 @@ router.put("/updateMoney/:id", async (req, res) => {
 
 router.post("/vidaPlayer", async (req, res) => {
   const { id, quantidade } = req.body;
-  if (await vrp.isOnline(id)) {
+  if (base_creative ? await creative.isOnline(id) : await vrp.isOnline(id)) {
     updadeVidaJogador(id, quantidade, (callback) => {
       if (callback) {
         res.json({
@@ -685,7 +818,7 @@ router.post("/vidaPlayers", async (req, res) => {
 router.post("/coletePlayer", async (req, res) => {
   const { id } = req.body;
 
-  if (await vrp.isOnline(id)) {
+  if (base_creative ? await creative.isOnline(id) : await vrp.isOnline(id)) {
     updateColeteJogador(parseInt(id), (callback) => {
       if (callback) {
         res.json({
@@ -708,8 +841,11 @@ router.post("/coletePlayer", async (req, res) => {
 router.post("/tpToJogador", async (req, res) => {
   const { myId, idJogador } = req.body;
 
-  if (await vrp.isOnline(idJogador)) {
-
+  if (
+    base_creative
+      ? await creative.isOnline(idJogador)
+      : await vrp.isOnline(idJogador)
+  ) {
     tpToJogador(parseInt(myId), parseInt(idJogador), (callback) => {
       if (callback) {
         res.json({
@@ -731,8 +867,11 @@ router.post("/tpToJogador", async (req, res) => {
 router.post("/tpToMeJogador", async (req, res) => {
   const { myId, idJogador } = req.body;
 
-  if (await vrp.isOnline(idJogador)) {
-
+  if (
+    base_creative
+      ? await creative.isOnline(idJogador)
+      : await vrp.isOnline(idJogador)
+  ) {
     tpToMeJogador(parseInt(myId), parseInt(idJogador), (callback) => {
       if (callback) {
         messageSuccess(idJogador, "Administração realizou o teletransporte.");
@@ -752,12 +891,10 @@ router.post("/tpToMeJogador", async (req, res) => {
   }
 });
 
-
 router.post("/tpToWayJogador", async (req, res) => {
   const { id } = req.body;
 
-  if (await vrp.isOnline(id)) {
-
+  if (base_creative ? await creative.isOnline(id) : await vrp.isOnline(id)) {
     tpToWayJogador(parseInt(id), (callback) => {
       if (callback) {
         messageSuccess(id, "Administração realizou o teletransporte.");
@@ -776,6 +913,5 @@ router.post("/tpToWayJogador", async (req, res) => {
     });
   }
 });
-
 
 module.exports = router;

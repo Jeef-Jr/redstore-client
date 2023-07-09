@@ -13,7 +13,7 @@ vrp.isOnline = (id) => {
 
 //
 
-vrp.whiteList = vrp.bank = async (id, status) => {
+vrp.whiteList = vrp.whiteList = async (id, status) => {
   return sql("UPDATE vrp_users SET whitelisted = ? WHERE id=?", [status, id]);
 };
 

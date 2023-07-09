@@ -1,17 +1,18 @@
 {
-  "token": "seu-token",
+  "token": "24062023-developer",
   "mysql": {
     "host": "localhost",
     "port": 3306,
-    "database": "db",
+    "database": "creawork",
     "user": "root",
     "password": ""
   },
   "columns": {
-    "vehicles": "vrp_user_vehicles",
-    "priority": "vrp_priority"
+    "vehicles": "vehicles",
+    "priority": "propertys"
   },
+  "base_creative": true,
   "groupsInTable": false,
-  "production": true, 
+  "production": false, 
   "webhook": "link-webhook-discord" 
 }

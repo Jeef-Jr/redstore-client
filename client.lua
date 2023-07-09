@@ -91,7 +91,7 @@ AddEventHandler('listBlipMarksCliente', function(coords, first_spawn, refresh)
 	if first_spawn or refresh then
 		for k, v in pairs(coords) do
 			if v.tipo == 1 then
-				blip = AddBlipForCoord(parseFloat(v.x), parseFloat(v.y), parseFloat(v.z))
+				blip = AddBlipForCoord(tonumber(v.x), tonumber(v.y), tonumber(v.z))
 				SetBlipSprite(blip, v.icon)
 				SetBlipCategory(blip, 9)
 				AddTextEntry('MYBLIP', v.name)
@@ -102,11 +102,11 @@ AddEventHandler('listBlipMarksCliente', function(coords, first_spawn, refresh)
 					blip,
 					0.6
 				)
-				table.insert(blips, { blip = blip, x = parseFloat(v.x), y = parseFloat(v.y), z = parseFloat(v.z) })
+				table.insert(blips, { blip = blip, x = tonumber(v.x), y = tonumber(v.y), z = tonumber(v.z) })
 			end
 		end
 	else
-		blip = AddBlipForCoord(parseFloat(coords[1].x), parseFloat(coords[1].y), parseFloat(coords[1].z))
+		blip = AddBlipForCoord(tonumber(coords[1].x), tonumber(coords[1].y), tonumber(coords[1].z))
 		SetBlipSprite(blip, coords[1].icon)
 		SetBlipCategory(blip, 9)
 		AddTextEntry('MYBLIP', coords[1].name)
@@ -118,7 +118,7 @@ AddEventHandler('listBlipMarksCliente', function(coords, first_spawn, refresh)
 			0.6
 		)
 		table.insert(blips,
-			{ blip = blip, x = parseFloat(coords[1].x), y = parseFloat(coords[1].y), z = parseFloat(coords[1].z) })
+			{ blip = blip, x = tonumber(coords[1].x), y = tonumber(coords[1].y), z = tonumber(coords[1].z) })
 	end
 end)
 
@@ -168,4 +168,11 @@ AddEventHandler('tptoway',function()
 	end
 
 	SetEntityCoordsNoOffset(ped,x,y,z,0,0,1)
+end)
+
+
+
+Citizen.CreateThread(function()
+    Citizen.Wait(1000) -- Aguarda 1 segundo
+    TriggerServerEvent('salario:pagamentoLoop')
 end)

@@ -7,9 +7,10 @@ const cors = require("cors");
 const app = express();
 const port = 3333;
 
-
 const corsOptions = {
-  origin: [config.production ? "http://189.127.165.179:5173" : "http://localhost:5173"], // Não remova esse IP, pois caso o faça, seu servidor ficará vulnerável a solicitações.
+  origin: [
+    config.production ? "http://189.127.165.179:5173" : "http://localhost:5173",
+  ], // Não remova esse IP, pois caso o faça, seu servidor ficará vulnerável a solicitações.
 };
 
 app.use(express.json());
@@ -36,16 +37,19 @@ async function start() {
   const coordsBlip = await sql(`SELECT * FROM redstore_coords`);
 
   if (!(response.length > 0)) {
-    sql(utils.insertHomes());
+    if (base_creative) {
+      for (let i = 1; i <= 1212; i++) {
+        const property = `Propertys${String(i).padStart(4, "0")}`;
+        sql(`INSERT INTO redstore_homes (id, home) VALUES (${i}, '${property}')`);
+      }
+    } else {
+      sql(utils.insertHomes());
+    }
   }
 
   if (coordsBlip.length > 0) {
     emit("listBlipMarks", coordsBlip, true);
   }
-
-
-
-
 
   setInterval(
     () =>
@@ -63,14 +67,13 @@ async function start() {
 }
 
 const adminRouter = require("./src/routes/Admin");
-const mechanicRouter = require("./src/routes/Mechanic");
-const { default: axios } = require("axios");
+const donaterRouter = require("./src/routes/Donater");
+const { columns, base_creative } = require("./src/config");
 
-app.use("/mechanic", mechanicRouter);
+app.use("/donater", donaterRouter);
 app.use("/admin", adminRouter);
 
 // Natives
-
 app.get("/connection", (req, res) => {
   res.json({
     connection: true,
