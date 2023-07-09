@@ -1,9 +1,9 @@
 {
-  "token": "24062023-developer",
+  "token": "",
   "mysql": {
     "host": "localhost",
     "port": 3306,
-    "database": "creawork",
+    "database": "",
     "user": "root",
     "password": ""
   },
