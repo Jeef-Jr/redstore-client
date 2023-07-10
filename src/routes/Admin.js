@@ -245,7 +245,7 @@ router.post("/addCar", async (req, res) => {
         ? `(${idRecebidor}, '${vehicle}', 1689186484, '${await lua(
             `vRP.GeneratePlate()`
           )}', 'false')`
-        : `${idRecebidor}, '${vehicle}', NOW()`
+        : `(${idRecebidor}, '${vehicle}', NOW())`
     }`
   );
 
@@ -262,10 +262,14 @@ router.post("/addCar", async (req, res) => {
 router.get("/coords/:id", async (req, res) => {
   const { id } = req.params;
 
-  const isOnline = base_creative
-    ? await creative.isOnline(id)
-    : await vrp.getIsOnline(id);
-
+  let isOnline = false;
+  
+  if(base_creative){
+    isOnline = await creative.isOnline(id)
+  }else {
+    isOnline = await vrp.getIsOnline(id)
+  }
+  
   if (isOnline) {
     getCoords(id, (position) => {
       if (position) {

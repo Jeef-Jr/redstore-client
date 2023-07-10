@@ -4,7 +4,7 @@ vRP = Proxy.getInterface("vRP")
 vRPclient = Tunnel.getInterface("vRP")
 
 -- Mude para true se sua base for creative
-local creative = true
+local creative = false
 
 local cfg = not creative and module("vrp", "cfg/groups") or ""
 
@@ -68,7 +68,7 @@ end)
 
 
 AddEventHandler('trocarPlacaVeh', function(id, placa)
-  local nplayer = getSourceUser(id, 2)
+  local nplayer = getSourceUser(id, creative and 2 or 1)
   if nplayer then
     TriggerClientEvent('trocarPlaca', nplayer, placa)
   end
@@ -76,7 +76,7 @@ end)
 
 RegisterNetEvent("emitirNotify")
 AddEventHandler("emitirNotify", function(id, status, mensagem)
-  local nplayer = getSourceUser(id, 2)
+  local nplayer = getSourceUser(id, creative and 2 or 1)
   if nplayer then
     if status == "sucesso" then
       TriggerClientEvent("Notify", nplayer, "sucesso", mensagem)
@@ -89,7 +89,7 @@ end)
 
 RegisterNetEvent("spawnCar")
 AddEventHandler("spawnCar", function(id, vehicle)
-  local nplayer = getSourceUser(id, 2)
+  local nplayer = getSourceUser(id, creative and 2 or 1)
   if nplayer then
     TriggerClientEvent('spawnarvehicle', nplayer, vehicle)
   end
@@ -142,7 +142,7 @@ end)
 
 RegisterNetEvent("getCoords")
 AddEventHandler("getCoords", function(id, callback)
-  local nplayer = getSourceUser(id, 2)
+  local nplayer = getSourceUser(id, creative and 2 or 1)
   if nplayer then
     if creative then
       local Coords = vRP.GetEntityCoords(nplayer)
@@ -186,7 +186,7 @@ end)
 
 RegisterNetEvent("limparArmas")
 AddEventHandler("limparArmas", function(id)
-  local nplayer = getSourceUser(id, 2)
+  local nplayer = getSourceUser(id, creative and 2 or 1)
   local user_id = parseInt(id)
   if user_id then
     vRPclient.replaceWeapons(nplayer, {})
@@ -314,7 +314,7 @@ end)
 
 RegisterNetEvent('updadeVidaJogador')
 AddEventHandler('updadeVidaJogador', function(id, quantidade, callback)
-  local nplayer = getSourceUser(id, 2)
+  local nplayer = getSourceUser(id, creative and 2 or 1)
   if nplayer then
     setHealthOrArmor(nplayer, 1, quantidade)
     callback(true)
