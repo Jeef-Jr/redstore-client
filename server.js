@@ -29,8 +29,18 @@ async function start() {
   console.log("RedStore >> Conectado ao banco de dados!");
   console.log("RedStore Online >>> " + GetNumPlayerIndices());
 
-  sql(utils.createTableCoords());
-  sql(utils.createTableHome());
+  await sql(utils.createTableCoords());
+  await sql(utils.createTableHome());
+
+  if (base_creative) {
+    sql(utils.createTableInteriores());
+
+    const interiores = await sql(`SELECT * FROM redstore_homes_interior`);
+
+    if (!(interiores.length > 0)) {
+      await sql(utils.insertTableInteriores());
+    }
+  }
 
   const response = await sql(`SELECT * FROM redstore_homes`);
 
@@ -40,7 +50,9 @@ async function start() {
     if (base_creative) {
       for (let i = 1; i <= 1212; i++) {
         const property = `Propertys${String(i).padStart(4, "0")}`;
-        sql(`INSERT INTO redstore_homes (id, home) VALUES (${i}, '${property}')`);
+        sql(
+          `INSERT INTO redstore_homes (id, home) VALUES (${i}, '${property}')`
+        );
       }
     } else {
       sql(utils.insertHomes());

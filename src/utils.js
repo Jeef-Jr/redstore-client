@@ -13,16 +13,37 @@ module.exports.createTableCoords = () => {
     `;
 };
 
+module.exports.createTableInteriores = () => {
+  return `CREATE TABLE IF NOT EXISTS redstore_homes_interior (
+		  id int(11) NOT NULL AUTO_INCREMENT,
+		  name varchar(50) NOT NULL DEFAULT '0',
+		  vault int(11) NOT NULL DEFAULT 0,
+		  fridge int(11) NOT NULL DEFAULT 0,
+		  PRIMARY KEY (id)
+		)`;
+};
+
+module.exports.insertTableInteriores = () => {
+  return `
+	INSERT INTO redstore_homes_interior (id, name, vault, fridge) VALUES
+	(1, 'Emerald', 200, 20),
+	(2, 'Diamond', 100, 10),
+	(3, 'Ruby', 200, 20),
+	(4, 'Sapphire', 350, 35),
+	(5, 'Amethyst', 500, 50),
+	(6, 'Amber', 650, 65);
+	`;
+};
+
 module.exports.createTableHome = () => {
-	return `
+  return `
 	  CREATE TABLE IF NOT EXISTS redstore_homes (
 		id int(11) NOT NULL AUTO_INCREMENT,
 		home varchar(50) NOT NULL DEFAULT '0',
 		PRIMARY KEY (id)
 	  )
 	  `;
-  };
-  
+};
 
 module.exports.insertHomes = () => {
   return `
