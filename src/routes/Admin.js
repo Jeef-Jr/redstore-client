@@ -588,7 +588,7 @@ router.post("/vehicleUserRemove", async (req, res) => {
   const { id, vehicle } = req.body;
 
   await sql(
-    `DELETE FROM ${columns.vehicles} WHERE user_id = ? AND vehicle = ? `,
+    `DELETE FROM ${columns.vehicles} WHERE ${base_creative ? "Passport" : "user_id"} = ? AND vehicle = ? `,
     [id, vehicle]
   );
 
