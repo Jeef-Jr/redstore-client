@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const vrp = require("../vrp");
 const { sql } = require("../mysql");
-const { columns, groupsInTable, base_creative } = require("../config");
+const { columns, groupsInTable, base_creative, notify } = require("../config");
 const { lua } = require("../lua");
 const creative = require("../creative");
 
@@ -76,13 +76,13 @@ function tpToWayJogador(id, callback) {
 
 function messageSuccess(id, message) {
   new Promise(() => {
-    emit("emitirNotify", id, "sucesso", message);
+    emit("emitirNotify", id, "sucesso", notify.success, message);
   });
 }
 
 function messageFail(id, message) {
   new Promise(() => {
-    emit("emitirNotify", id, "negado", message);
+    emit("emitirNotify", id, "negado", notify.success, message);
   });
 }
 

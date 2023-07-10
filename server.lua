@@ -4,7 +4,7 @@ vRP = Proxy.getInterface("vRP")
 vRPclient = Tunnel.getInterface("vRP")
 
 -- Mude para true se sua base for creative
-local creative = false
+local creative = true
 
 local cfg = not creative and module("vrp", "cfg/groups") or ""
 
@@ -75,13 +75,13 @@ AddEventHandler('trocarPlacaVeh', function(id, placa)
 end)
 
 RegisterNetEvent("emitirNotify")
-AddEventHandler("emitirNotify", function(id, status, mensagem)
+AddEventHandler("emitirNotify", function(id, status, variavel, mensagem)
   local nplayer = getSourceUser(id, creative and 2 or 1)
   if nplayer then
     if status == "sucesso" then
-      TriggerClientEvent("Notify", nplayer, "sucesso", mensagem)
+      TriggerClientEvent("Notify", nplayer, variavel, mensagem)
     elseif status == "negado" then
-      TriggerClientEvent("Notify", nplayer, "negado", mensagem)
+      TriggerClientEvent("Notify", nplayer, variavel, mensagem)
     end
   end
 end)

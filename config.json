@@ -11,8 +11,12 @@
     "vehicles": "vehicles",
     "priority": "propertys"
   },
+  "notify": {
+    "success": "verde",
+    "negado": "vermelho"
+  },
   "base_creative": true,
   "groupsInTable": false,
-  "production": false, 
-  "webhook": "link-webhook-discord" 
+  "production": false,
+  "webhook": "link-webhook-discord"
 }
