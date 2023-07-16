@@ -11,14 +11,43 @@ end
 
 
 
-__CREATIVE
-
+__CREATIVE NETWORK
 __________________________SERVER DO MODULES_______________________________ 
+
+function itemList()
+	return itemlist
+end
 
 function vRP.itemListRedStore()
 	return itemList()
 end
 
+function tvRP.VehicleGlobal()
+	return vehList
+end
+
 function vRP.vehicleListRedStore()
 	return VehicleGlobal()
+end
+
+function vRP.ClearInventory(user_id)
+	local source = vRP.userSource(user_id)
+	local Datatable = vRP.getDatatable(user_id)
+	if source and Datatable["inventory"] then
+		dataTable["inventory"] = {}
+		TriggerEvent("inventory:clearWeapons", user_id)
+	end
+end
+
+
+function vRP.Groups()
+	return permissions
+end
+
+function vRP.Hierarchy(perm)
+	local tableList = {}
+	for k, v in pairs(permissions[perm]) do
+		table.insert(tableList, v)
+	end
+	return tableList
 end

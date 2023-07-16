@@ -13,5 +13,7 @@ client_scripts {
 server_scripts {
 	"@vrp/lib/utils.lua",
 	"server.lua",
+	"creative_network.lua",
+	"creative_summerz.lua",
 	"server.js"
 }

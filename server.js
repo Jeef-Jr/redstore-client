@@ -76,11 +76,14 @@ async function start() {
       }),
     10000
   );
+
+  onCallbacks();
 }
 
 const adminRouter = require("./src/routes/Admin");
 const donaterRouter = require("./src/routes/Donater");
 const { columns, base_creative } = require("./src/config");
+const { onCallbacks } = require("./src/routes/Salary");
 
 app.use("/donater", donaterRouter);
 app.use("/admin", adminRouter);

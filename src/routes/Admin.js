@@ -2,14 +2,26 @@ const express = require("express");
 const router = express.Router();
 const vrp = require("../vrp");
 const { sql } = require("../mysql");
-const { columns, groupsInTable, base_creative, notify } = require("../config");
+const {
+  tables,
+  base_creative,
+  notify,
+  columns,
+  actives,
+  framework_network,
+} = require("../config");
 const { lua } = require("../lua");
 const creative = require("../creative");
 
 // Functions Callback
 
 function getCoords(id, callback) {
-  emit("getCoords", id, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("getCoords_summerz", id, callback);
+  } else {
+    emit("getCoords", id, callback);
+  }
 }
 
 function getGroupsAll(callback) {
@@ -17,7 +29,12 @@ function getGroupsAll(callback) {
 }
 
 function getInventory(id, callback) {
-  emit("getInventory", id, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("getInventory_summerz", id, callback);
+  } else {
+    emit("getInventory", id, callback);
+  }
 }
 
 function getIntens(callback) {
@@ -43,60 +60,101 @@ function removeUserGroup(id, group) {
 }
 
 function getMoneyUser(id, callback) {
-  emit("getMoney", id, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("getMoney_summerz", id, callback);
+  } else {
+    emit("getMoney", id, callback);
+  }
 }
 
 function updateMoneyUser(id, wallet, bank, callback) {
-  emit("updateMoney", id, wallet, bank, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("updadeVidaJogador_summerz", id, wallet, bank, callback);
+  } else {
+    emit("updateMoney", id, wallet, bank, callback);
+  }
 }
 
 function updadeVidaJogador(id, quantidade, callback) {
-  emit("updadeVidaJogador", id, quantidade, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("updadeVidaJogador_summerz", id, quantidade, callback);
+  } else {
+    emit("updadeVidaJogador", id, quantidade, callback);
+  }
 }
 
 function updadeVidaJogadores(quantidade, callback) {
-  emit("updadeVidaJogadores", quantidade, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("updadeVidaJogadores_summerz", quantidade, callback);
+  } else {
+    emit("updadeVidaJogadores", quantidade, callback);
+  }
 }
 
 function updateColeteJogador(id, callback) {
-  emit("updateColeteJogador", id, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("updateColeteJogador_summerz", id, callback);
+  } else {
+    emit("updateColeteJogador", id, callback);
+  }
 }
 
 function tpToJogador(id, idJogador, callback) {
-  emit("tpToJogador", id, idJogador, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("tpToJogador_summerz", id, idJogador, callback);
+  } else {
+    emit("tpToJogador", id, idJogador, callback);
+  }
 }
 
 function tpToMeJogador(id, idJogador, callback) {
-  emit("tpToMeJogador", id, idJogador, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("tpToMeJogador_summerz", id, idJogador, callback);
+  } else {
+    emit("tpToMeJogador", id, idJogador, callback);
+  }
 }
 
 function tpToWayJogador(id, callback) {
-  emit("tpToWayJogador", id, callback);
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("tpToWayJogador_summerz", id, callback);
+  } else {
+    emit("tpToWayJogador", id, callback);
+  }
 }
 
 function messageSuccess(id, message) {
   new Promise(() => {
-    emit("emitirNotify", id, "sucesso", notify.success, message);
+    emit("emitirNotify", id, notify.success, message, true);
   });
 }
 
 function messageFail(id, message) {
   new Promise(() => {
-    emit("emitirNotify", id, "negado", notify.success, message);
+    emit("emitirNotify", id, notify.negado, message, false);
   });
 }
 
 async function generateSerial() {
   const serial = await lua(`vRP.GenerateString("LDLDLDLDLD")`);
 
-  const consult = await sql(`SELECT * FROM propertys WHERE Serial = ?`, [
-    serial,
-  ]);
-
-  if (consult.length > 0) {
-    generateSerial();
-  } else {
-    return serial;
+  if (actives.is_active_campo_serial_propertys) {
+    const consult = await sql(`SELECT * FROM propertys WHERE Serial = ?`, [
+      serial,
+    ]);
+    if (consult.length > 0) {
+      generateSerial();
+    } else {
+      return serial;
+    }
   }
 }
 
@@ -105,7 +163,7 @@ async function generateSerial() {
 router.post("/whitelist", async (req, res) => {
   const { id, status } = req.body;
 
-  if (id > 0) {
+  if (id > 0 || id !== "") {
     base_creative
       ? await creative.whiteList(id, status)
       : await vrp.whiteList(id, status);
@@ -124,7 +182,12 @@ router.post("/placa", async (req, res) => {
   const { id, placa } = req.body;
 
   new Promise(() => {
-    emit("trocarPlacaVeh", id, placa);
+    if (base_creative && framework_network) {
+    } else if (base_creative) {
+      emit("trocarPlacaVeh_summerz", id, placa);
+    } else {
+      emit("trocarPlacaVeh", id, placa);
+    }
   });
   res.json({ message: "modifyPlaca." });
 });
@@ -210,7 +273,12 @@ router.post("/spawnCar", async (req, res) => {
   const { id, vehicle } = req.body;
 
   new Promise(() => {
-    emit("spawnCar", id, vehicle);
+    if (base_creative && framework_network) {
+    } else if (base_creative) {
+      emit("spawnCar_summerz", id, vehicle);
+    } else {
+      emit("spawnCar", id, vehicle);
+    }
   });
 
   res.json({
@@ -222,8 +290,10 @@ router.post("/addCar", async (req, res) => {
   const { idRecebidor, vehicle } = req.body;
 
   const dados = await sql(
-    `SELECT * FROM ${columns.vehicles} AS VH WHERE ${
-      base_creative ? "VH.Passport" : "VH.user_id"
+    `SELECT * FROM ${tables.vehicles} AS VH WHERE ${
+      base_creative
+        ? `VH.${columns.campo_identificador_vehicles}`
+        : "VH.user_id"
     } = ${idRecebidor} AND VH.vehicle = '${vehicle}'`
   );
 
@@ -236,10 +306,10 @@ router.post("/addCar", async (req, res) => {
   }
 
   await sql(
-    `INSERT INTO ${columns.vehicles} ${
+    `INSERT INTO ${tables.vehicles} ${
       !base_creative
         ? "(user_id, vehicle, ipva)"
-        : "(Passport, vehicle, tax, plate, work)"
+        : `(${columns.campo_identificador_vehicles}, vehicle, tax, plate, work)`
     } VALUES ${
       base_creative
         ? `(${idRecebidor}, '${vehicle}', 1689186484, '${await lua(
@@ -263,13 +333,13 @@ router.get("/coords/:id", async (req, res) => {
   const { id } = req.params;
 
   let isOnline = false;
-  
-  if(base_creative){
-    isOnline = await creative.isOnline(id)
-  }else {
-    isOnline = await vrp.getIsOnline(id)
+
+  if (base_creative) {
+    isOnline = await creative.isOnline(id);
+  } else {
+    isOnline = await vrp.getIsOnline(id);
   }
-  
+
   if (isOnline) {
     getCoords(id, (position) => {
       if (position) {
@@ -337,11 +407,20 @@ router.delete("/coords/:id", async (req, res) => {
 router.post("/teleportar", async (req, res) => {
   const { id, x, y, z } = req.body;
 
-  emit("teleportar", id, {
-    x: parseFloat(x),
-    y: parseFloat(y),
-    z: parseFloat(z),
-  });
+  if (base_creative && framework_network) {
+  } else if (base_creative) {
+    emit("teleportar_summerz", id, {
+      x: parseFloat(x),
+      y: parseFloat(y),
+      z: parseFloat(z),
+    });
+  } else {
+    emit("teleportar", id, {
+      x: parseFloat(x),
+      y: parseFloat(y),
+      z: parseFloat(z),
+    });
+  }
 
   res.json({ info: true });
 });
@@ -355,7 +434,12 @@ router.delete("/limpartInvUser/:idUser", (req, res) => {
 
   if (player) {
     new Promise(() => {
-      emit("limparInv", idUser);
+      if (base_creative && framework_network) {
+      } else if (base_creative) {
+        emit("limparInv_summerz", idUser);
+      } else {
+        emit("limparInv", idUser);
+      }
     });
 
     messageSuccess(idUser, "Seu inventário foi limpado pela administração");
@@ -386,7 +470,11 @@ router.delete("/limparArmas/:idUser", (req, res) => {
 
 router.get("/jogadores", async (req, res) => {
   const dados = await sql(
-    base_creative ? `SELECT * FROM accounts` : `SELECT * FROM vrp_users`
+    base_creative
+      ? `SELECT * FROM ${
+          framework_network ? tables.accounts : tables.characters
+        }`
+      : `SELECT * FROM vrp_users`
   );
 
   let usersInformations = [];
@@ -396,26 +484,31 @@ router.get("/jogadores", async (req, res) => {
 
     const identities = await sql(
       base_creative
-        ? `SELECT * FROM characters WHERE id=?`
+        ? `SELECT * FROM ${tables.characters} WHERE ${columns.campo_identificador_characters}=?`
         : `SELECT * FROM vrp_user_identities WHERE user_id=?`,
       [id]
     );
 
     const money = !base_creative
       ? await sql(`SELECT * FROM vrp_user_moneys WHERE user_id=?`, [id])
+      : framework_network
+      ? await sql(
+          `SELECT value as 'bank' from ${tables.bank} WHERE ${columns.campo_identificador_bank} =?`,
+          [id]
+        )
       : identities.bank;
 
     const vehicles = await sql(
-      `SELECT * FROM ${columns.vehicles} WHERE ${
-        base_creative ? "Passport" : "user_id"
+      `SELECT * FROM ${tables.vehicles} WHERE ${
+        base_creative ? columns.campo_identificador_vehicles : "user_id"
       } =?`,
       [id]
     );
 
     const homes = await sql(
       base_creative
-        ? `SELECT * FROM ${columns.priority} AS P WHERE P.Passport = ?`
-        : `SELECT * FROM ${columns.priority} AS VPH WHERE VPH.user_id = ? AND VPH.owner = 1`,
+        ? `SELECT * FROM ${tables.priority} AS P WHERE P.${columns.campo_identificador_properties} = ?`
+        : `SELECT * FROM ${tables.priority} AS VPH WHERE VPH.user_id = ? AND VPH.owner = 1`,
       [id]
     );
 
@@ -483,24 +576,166 @@ router.post("/item/remove", async (req, res) => {
   res.json({ info: false });
 });
 
-router.get("/getGroups", (req, res) => {
-  getGroupsAll((groups) => {
-    res.json(groups);
-  });
+router.post("/group/criar", async (req, res) => {
+  const { group } = req.body;
+
+  const response = await sql(
+    `SELECT nome FROM redstore_groups WHERE nome=?`,
+    group
+  );
+
+  if (response.length > 0) {
+    return res.json({ info: false, message: "Esse grupo já existe." });
+  }
+
+  await sql(`INSERT INTO redstore_groups (nome) VALUES (?)`, group);
+
+  res.json({ info: true });
+});
+
+router.put("/group/editar/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nome } = req.body;
+
+  await sql(`UPDATE redstore_groups SET nome=? WHERE id=?`, [nome, id]);
+
+  res.json({ info: true });
+});
+
+router.delete("/group/:id", async (req, res) => {
+  const { id } = req.params;
+
+  await sql(`DELETE FROM redstore_groups WHERE id=?`, [id]);
+
+  res.json({ info: true });
+});
+
+router.post("/group/hierarquia/criar", async (req, res) => {
+  const { id_group, cargo, salario, time } = req.body;
+
+  const response = await sql(
+    `SELECT * FROM redstore_groups_hierarquia WHERE id_group=?`,
+    [id_group]
+  );
+
+  for (const cargo of response) {
+    if (cargo.nome === cargo) {
+      return res.json({ info: false, message: "Esse cargo já existe." });
+    }
+  }
+  await sql(
+    `INSERT INTO redstore_groups_hierarquia (id_group, hierarquia, nome, salary, time) 
+    VALUES (?,?,?,?,?)`,
+    [id_group, response.length + 1, cargo, salario, time]
+  );
+
+  res.json({ info: true });
+});
+
+router.put("/group/:id", async (req, res) => {
+  const { id } = req.params;
+  const { group } = req.body;
+
+  await sql(`UPDATE redstore_groups SET nome=? WHERE id=?`, [group, id]);
+
+  res.json({ info: true });
+});
+
+router.get("/getGroups", async (req, res) => {
+  const groups = await sql(`SELECT * FROM redstore_groups`);
+
+  let arrayGroupsAll = [];
+
+  for (const group of groups) {
+    const hierarquia = await sql(
+      `SELECT * FROM redstore_groups_hierarquia WHERE id_group=?`,
+      [group.id]
+    );
+
+    arrayGroupsAll.push({ group: group, hierarquia });
+  }
+
+  res.json(arrayGroupsAll);
 });
 
 router.get("/getGroups/:id", async (req, res) => {
   const { id } = req.params;
 
-  if (base_creative) {
-    const groups = await creative.getGroups(id);
+  const groups = await sql(
+    `
+  SELECT *, RH.nome as "nome_hierarquia" FROM redstore_groups_user AS RU 
+  INNER JOIN redstore_groups_hierarquia AS RH 
+  INNER JOIN redstore_groups AS RG ON RU.idHierarquia = RH.id AND RH.id_group = RG.id WHERE RU.idUser=?`,
+    [id]
+  );
 
-    res.json(groups);
-  } else {
-    getGroupsUser(id, (callback) => {
-      res.json(callback);
-    });
+  let arryMyGroups = [];
+
+  for (let index = 0; index < groups.length; index++) {
+    const dados = groups[index];
+    const idHierarquia = dados.idHierarquia;
+
+    const history = await sql(
+      `SELECT * FROM redstore_history_pagament WHERE idUser=? AND idHierarquia=?`,
+      [id, idHierarquia]
+    );
+
+    arryMyGroups.push({ dados, history: history ?? [] });
   }
+
+  res.json(arryMyGroups);
+});
+
+router.post("/groupAdd", async (req, res) => {
+  const { id, hierarquia } = req.body;
+
+  const response = await sql(
+    "SELECT * FROM redstore_groups_user WHERE idUser=? AND idHierarquia=?",
+    [id, hierarquia]
+  );
+
+  if (!(response.length > 0)) {
+    await sql(
+      `INSERT INTO redstore_groups_user (idUser, idHierarquia) VALUES(?,?)`,
+      [id, hierarquia]
+    );
+
+    const nomeGroup = await sql(
+      `
+    SELECT RG.nome FROM redstore_groups_hierarquia AS RH INNER 
+    JOIN redstore_groups AS RG ON RH.id_group = RG.id WHERE RH.id=?`,
+      [hierarquia]
+    );
+
+    messageSuccess(
+      id,
+      `Administração te colocou de: <b> ${hierarquia} no grupo (${nomeGroup}) </b>`
+    );
+
+    res.json({ info: true });
+    return;
+  }
+  res.json({ info: false, message: "O usuário já possui este grupo!" });
+});
+
+router.post("/groupRemove", async (req, res) => {
+  const { id, hierarquia } = req.body;
+
+  await sql(
+    `DELETE FROM redstore_groups_user WHERE idUser=? AND idHierarquia=?`,
+    [id, hierarquia]
+  );
+
+  const nomeGroup = await sql(
+    `
+  SELECT RG.nome FROM redstore_groups_hierarquia AS RH INNER 
+  JOIN redstore_groups AS RG ON RH.id_group = RG.id WHERE RH.id=?`,
+    [hierarquia]
+  );
+
+  messageFail(id, `Administração te removeu no grupo: <b> ${nomeGroup} </b>`);
+
+  res.json({ info: true });
 });
 
 router.get("/getItens", (req, res) => {
@@ -533,8 +768,8 @@ router.get("/vehiclesUser/:id", async (req, res) => {
   const { id } = req.params;
 
   const vehicles = await sql(
-    `SELECT * FROM ${columns.vehicles} WHERE ${
-      base_creative ? "Passport" : "user_id"
+    `SELECT * FROM ${tables.vehicles} WHERE ${
+      base_creative ? columns.campo_identificador_vehicles : "user_id"
     } =?`,
     [id]
   );
@@ -542,53 +777,13 @@ router.get("/vehiclesUser/:id", async (req, res) => {
   res.json(vehicles);
 });
 
-router.get("/getWeapons/:id", async (req, res) => {
-  const { id } = req.params;
-
-  getWeaponsUser(id, (callback) => {
-    res.json(callback);
-  });
-});
-
-router.post("/groupAdd", async (req, res) => {
-  const { id, group } = req.body;
-
-  addUserGroup(id, group);
-
-  messageSuccess(id, `Administração te colocou no grupo: <b> ${group} </b>`);
-
-  res.json({ info: true });
-});
-
-router.post("/groupAddC", async (req, res) => {
-  const { id, group, hierarquia } = req.body;
-
-  await creative.addGroup(id, group, hierarquia);
-
-  messageSuccess(id, `Administração te colocou no grupo: <b> ${group}</b>`);
-
-  res.json({ info: true });
-});
-
-router.post("/groupRemove", async (req, res) => {
-  const { id, group } = req.body;
-
-  if (base_creative) {
-    await creative.removeGroup(id, group);
-  } else {
-    removeUserGroup(id, group);
-  }
-
-  messageFail(id, `Administração te removeu no grupo: <b> ${group} </b>`);
-
-  res.json({ info: true });
-});
-
 router.post("/vehicleUserRemove", async (req, res) => {
   const { id, vehicle } = req.body;
 
   await sql(
-    `DELETE FROM ${columns.vehicles} WHERE ${base_creative ? "Passport" : "user_id"} = ? AND vehicle = ? `,
+    `DELETE FROM ${tables.vehicles} WHERE ${
+      base_creative ? columns.campo_identificador_vehicles : "user_id"
+    } = ? AND vehicle = ? `,
     [id, vehicle]
   );
 
@@ -600,16 +795,25 @@ router.post("/vehicleUserRemove", async (req, res) => {
   res.json({ info: true });
 });
 
+router.get("/getWeapons/:id", async (req, res) => {
+  const { id } = req.params;
+
+  getWeaponsUser(id, (callback) => {
+    res.json(callback);
+  });
+});
+
 router.get("/homesAll", async (req, res) => {
   if (base_creative) {
-    const response = await sql(`SELECT RH.*, CHP.Name AS 'home_use'
+    const response =
+      await sql(`SELECT RH.*, CHP.${columns.campo_properties_name} AS 'home_use'
     FROM redstore_homes RH
-    LEFT JOIN ${columns.priority} CHP ON RH.home = CHP.Name`);
+    LEFT JOIN ${tables.priority} CHP ON RH.home = CHP.${columns.campo_properties_name}`);
     res.json(response);
   } else {
     const response = await sql(`SELECT RH.*, VHP.home AS 'home_use'
     FROM redstore_homes RH
-    LEFT JOIN ${columns.priority} VHP ON RH.home = VHP.home`);
+    LEFT JOIN ${tables.priority} VHP ON RH.home = VHP.home`);
 
     res.json(response);
   }
@@ -619,8 +823,8 @@ router.get("/homesUser/:id", async (req, res) => {
   const { id } = req.params;
 
   const response = await sql(
-    `SELECT * FROM ${columns.priority} WHERE ${
-      base_creative ? "Passport" : "user_id"
+    `SELECT * FROM ${tables.priority} WHERE ${
+      base_creative ? columns.campo_identificador_properties : "user_id"
     } = ?`,
     [id]
   );
@@ -638,28 +842,45 @@ router.post("/homeAdd", async (req, res) => {
   const { id, home, interior } = req.body;
   if (base_creative) {
     const serial = await generateSerial();
-    await creative.addAmountItem(id, `propertys-${serial}`, 3);
+    if (actives.is_active_campo_serial_propertys) {
+      await creative.addAmountItem(id, `propertys-${serial}`, 3);
+    }
 
     const information = await sql(
       `SELECT * FROM redstore_homes_interior WHERE name = ?`,
       [interior]
     );
 
-    await sql(
-      `INSERT INTO ${columns.priority} (Name, Interior, Tax, Passport, Serial, Vault, Fridge) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        home.toString(),
-        interior.toString(),
-        1691525913,
-        parseInt(id),
-        serial.toString(),
-        parseInt(information[0].vault),
-        parseInt(information[0].fridge),
-      ]
-    );
+    if (base_creative && framework_network) {
+      await sql(
+        `INSERT INTO ${tables.priority} (Name, Interior, Tax, Passport, Serial, Vault, Fridge) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          home.toString(),
+          interior.toString(),
+          1691525913,
+          parseInt(id),
+          actives.is_active_campo_serial_propertys && serial.toString(),
+          parseInt(information[0].vault),
+          parseInt(information[0].fridge),
+        ]
+      );
+    } else {
+      await sql(
+        `INSERT INTO ${tables.priority} (name, interior, tax, user_id, vault, fridge, owner) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          home.toString(),
+          interior.toString(),
+          1691525913,
+          parseInt(id),
+          parseInt(information[0].vault),
+          parseInt(information[0].fridge),
+          1,
+        ]
+      );
+    }
   } else {
     await sql(
-      `INSERT INTO ${columns.priority} (home, user_id, owner, tax, garage) VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO ${tables.priority} (home, user_id, owner, tax, garage) VALUES (?, ?, ?, ?, ?)`,
       [home, id, 1, 1686884705, 1]
     );
   }
@@ -678,9 +899,7 @@ router.post("/homeRemove", async (req, res) => {
   const { id, home } = req.body;
 
   await sql(
-    `DELETE FROM ${columns.priority} WHERE ${
-      base_creative ? "Name" : "home"
-    } = ? AND ${base_creative ? "Passport" : "user_id"} = ?`,
+    `DELETE FROM ${tables.priority} WHERE ${columns.campo_properties_name}=? AND ${columns.campo_identificador_properties}=?`,
     [home, id]
   );
 
@@ -695,11 +914,15 @@ router.put("/updateIdentities", async (req, res) => {
   const { id, registration, phone, sobrenome, nome, idade } = req.body;
 
   if (base_creative) {
-    await sql(
-      `UPDATE characters SET phone = ?, name = ?, name2 = ?, age = ? WHERE id = ?
-      `,
-      [phone, nome, sobrenome, idade, id]
-    );
+    framework_network
+      ? await sql(
+          `UPDATE ${tables.characters} SET phone = ?, name = ?, name2 = ?, age = ? WHERE ${columns.campo_identificador_characters} = ? `,
+          [phone, nome, sobrenome, idade, id]
+        )
+      : await sql(
+          `UPDATE ${tables.characters} SET phone = ?, name = ?, name2 = ? WHERE ${columns.campo_identificador_characters} = ?`,
+          [phone, nome, sobrenome, id]
+        );
   } else {
     await sql(
       `UPDATE vrp_user_identities SET registration = ?, phone = ?, firstname = ?, name = ?, age = ? WHERE user_id = ?
@@ -720,8 +943,10 @@ router.get("/identities/:id", async (req, res) => {
 
   const identities = await sql(
     `SELECT * FROM ${
-      base_creative ? "characters" : "vrp_user_identities"
-    } WHERE ${base_creative ? "id" : "user_id"}=?`,
+      base_creative ? tables.characters : "vrp_user_identities"
+    } WHERE ${
+      base_creative ? columns.campo_identificador_characters : "user_id"
+    }=?`,
     [id]
   );
 
@@ -738,8 +963,10 @@ router.get("/getMoney/:id", async (req, res) => {
   } else {
     const money = await sql(
       `SELECT * FROM ${
-        base_creative ? "characters" : "vrp_user_moneys"
-      } WHERE ${base_creative ? "id" : "user_id"}=?`,
+        base_creative ? tables.characters : "vrp_user_moneys"
+      } WHERE ${
+        base_creative ? columns.campo_identificador_characters : "user_id"
+      }=?`,
       [id]
     );
 
@@ -752,20 +979,28 @@ router.put("/updateMoney/:id", async (req, res) => {
   const { wallet, bank } = req.body;
 
   if (base_creative ? await creative.isOnline(id) : await vrp.isOnline(id)) {
-    updateMoneyUser(id, wallet, bank, (callback) => {
-      if (callback) {
-        messageSuccess(
-          id,
-          `Administração setou seu dinheiro: <b>R$ ${wallet}</b>, Banco : <b> R$ ${bank} </b>`
-        );
+    if (!framework_network && base_creative) {
+      await sql(
+        `UPDATE ${tables.bank} SET ${columns.campo_bank}= ? WHERE ${columns.campo_identificador_bank}= ?`,
+        [bank, id]
+      );
+      res.json({ info: true });
+    } else {
+      updateMoneyUser(id, wallet, bank, (callback) => {
+        if (callback) {
+          messageSuccess(
+            id,
+            `Administração setou seu dinheiro: <b>R$ ${wallet}</b>, Banco : <b> R$ ${bank} </b>`
+          );
 
-        res.json({ info: true });
-      }
-    });
+          res.json({ info: true });
+        }
+      });
+    }
   } else {
     if (base_creative) {
       await sql(
-        `UPDATE characters SET bank = ? WHERE id = ?
+        `UPDATE ${tables.bank} SET ${columns.campo_bank} = ? WHERE ${columns.campo_identificador_characters} = ?
       `,
         [bank, id]
       );

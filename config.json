@@ -1,22 +1,41 @@
 {
   "token": "",
+  "base_creative": true,
+  "framework_network": false,
+  "groupsInTable": false,
+  "production": true,
   "mysql": {
     "host": "localhost",
     "port": 3306,
-    "database": "",
+    "database": "creative",
     "user": "root",
     "password": ""
   },
+  "tables": {
+    "accounts": "summerz_accounts",
+    "characters": "summerz_characters",
+    "vehicles": "summerz_vehicles",
+    "priority": "summerz_propertys",
+    "bank": "summerz_bank",
+    "entitydata_or_playerData": "summerz_playerdata"
+  },
   "columns": {
-    "vehicles": "vehicles",
-    "priority": "propertys"
+    "campo_identificador_accounts": "steam",
+    "campo_identificador_characters": "id",
+    "campo_identificador_properties": "user_id",
+    "campo_properties_name": "name",
+    "campo_identificador_vehicles": "user_id",
+    "campo_identificador_bank": "user_id",
+    "campo_bank": "value"
+  },
+  "actives": {
+    "is_active_campo_age": true,
+    "is_active_campo_serial_propertys": false
   },
   "notify": {
     "success": "verde",
     "negado": "vermelho"
   },
-  "base_creative": true,
-  "groupsInTable": false,
-  "production": false,
+
   "webhook": "link-webhook-discord"
 }

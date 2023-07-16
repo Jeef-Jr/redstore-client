@@ -1,10 +1,16 @@
 const { lua } = require("./lua");
 const { sql, getDatatable, setDatatable } = require("./mysql");
 
+const { columns, tables, framework_network } = require("../config.json");
+
 const creative = {};
 
 creative.isOnline = async (id) => {
-  return await lua(`vRP.Source(${id}) ~= nil`);
+  if (framework_network) {
+    return await lua(`vRP.Source(${id}) ~= nil`);
+  } else {
+    return await lua(`vRP.userSource(${id}) ~= nil`);
+  }
 };
 
 creative.getPassaport = async (source) => {
@@ -12,24 +18,41 @@ creative.getPassaport = async (source) => {
 };
 
 creative.whiteList = creative.whiteList = async (id, status) => {
-  return sql("UPDATE accounts SET whitelist = ? WHERE id=?", [status, id]);
+  return sql(
+    `UPDATE ${tables.accounts} SET whitelist = ? WHERE ${columns.campo_identificador_accounts}=?`,
+    [status, id]
+  );
 };
 
 creative.addBank = creative.bank = async (id, value) => {
   if (await creative.isOnline(id)) {
-    return lua(`vRP.GiveBank(${id}, ${value})`);
+    if (framework_network) {
+      return lua(`vRP.GiveBank(${id}, ${value})`);
+    } else {
+      return lua(` vRP.addBank(${id}, ${value}, "Private")`);
+    }
   } else {
-    return sql("UPDATE characters SET bank=bank+? WHERE id=?", [value, id]);
+    return sql(
+      `UPDATE ${tables.bank} SET ${columns.campo_bank}=${columns.campo_bank}+? WHERE ${columns.campo_identificador_bank}=?`,
+      [value, id]
+    );
   }
 };
 
 creative.removeBank = creative.removeBank = async (id, value) => {
   if (await creative.isOnline(id)) {
-    const money = await lua(`vRP.GetBank(${id})`);
+    const money = framework_network
+      ? await lua(`vRP.GetBank(${id})`)
+      : await lua(`vRP.userBank(${id}, "Private")`);
 
     if (money >= value) {
-      lua(`vRP.RemoveBank(${id}, ${value})`);
-      return true;
+      if (framework_network) {
+        lua(`vRP.RemoveBank(${id}, ${value})`);
+        return true;
+      } else {
+        lua(`vRP.delBank(${id}, ${value}, "Private")`);
+        return true;
+      }
     } else {
       return false;
     }
@@ -39,7 +62,9 @@ creative.removeBank = creative.removeBank = async (id, value) => {
 };
 
 creative.removeAmountItem = async (id, item, amount) => {
-  await lua(`vRP.RemoveItem(${id}, "${item}", ${amount}, true)`);
+  framework_network
+    ? await lua(`vRP.RemoveItem(${id}, "${item}", ${amount}, true)`)
+    : await lua(`vRP.removeInventoryItem(${id}, "${item}", ${amount}, true)`);
   return true;
 };
 
@@ -61,7 +86,9 @@ creative.addInventory = creative.addInventory = async (id, item, amount) => {
 };
 
 creative.addAmountItem = async (id, item, amount) => {
-  const inventory = await lua(`vRP.Inventory(${id})`);
+  const inventory = framework_network
+    ? await lua(`vRP.Inventory(${id})`)
+    : await lua(`vRP.userInventory(${id})`);
 
   if (Object.keys(inventory).length > 0) {
     const inventoryItems = Object.values(inventory);
@@ -70,23 +97,41 @@ creative.addAmountItem = async (id, item, amount) => {
       const dadosItem = inventoryItems[index];
 
       if (dadosItem.item === item) {
-        await lua(
-          `vRP.GiveItem(${parseInt(id)}, "${item}", ${parseInt(
-            amount
-          )}, true, ${index + 1})`
-        );
+        framework_network
+          ? await lua(
+              `vRP.GiveItem(${parseInt(id)}, "${item}", ${parseInt(
+                amount
+              )}, true, ${index + 1})`
+            )
+          : await lua(
+              `vRP.giveInventoryItem(${parseInt(id)}, "${item}", ${parseInt(
+                amount
+              )}, true, ${index + 1})`
+            );
         return true;
       }
     }
 
-    await lua(
-      `vRP.GiveItem(${parseInt(id)}, "${item}", ${parseInt(amount)}, true)`
-    );
+    framework_network
+      ? await lua(
+          `vRP.GiveItem(${parseInt(id)}, "${item}", ${parseInt(amount)}, true)`
+        )
+      : await lua(
+          `vRP.giveInventoryItem(${parseInt(id)}, "${item}", ${parseInt(
+            amount
+          )}, true)`
+        );
     return true;
   }
-  await lua(
-    `vRP.GiveItem(${parseInt(id)}, "${item}", ${parseInt(amount)}, true)`
-  );
+  framework_network
+    ? await lua(
+        `vRP.GiveItem(${parseInt(id)}, "${item}", ${parseInt(amount)}, true)`
+      )
+    : await lua(
+        `vRP.giveInventoryItem(${parseInt(id)}, "${item}", ${parseInt(
+          amount
+        )}, true)`
+      );
   return true;
 };
 
@@ -95,20 +140,35 @@ creative.getVehicleAll = async () => {
 };
 
 creative.addGroup = async (id, group, hierarquia) => {
-  return await lua(`vRP.SetPermission(${id}, '${group}', ${hierarquia})`);
+  return framework_network
+    ? await lua(`vRP.SetPermission(${id}, '${group}', ${hierarquia})`)
+    : await lua(`vRP.setPermission(${id}, '${group}')`);
 };
 
 creative.getGroups = async (id) => {
-  const groups = await sql(`SELECT * FROM entitydata`);
+  const groups = await sql(`SELECT * FROM ${tables.entitydata_or_playerData}`);
 
   const groupUser = [];
+  if (framework_network) {
+    for (const group of groups) {
+      const dvalue = JSON.parse(group.dvalue);
 
-  for (const group of groups) {
-    const dvalue = JSON.parse(group.dvalue);
+      for (const key in dvalue) {
+        if (key === id.toString()) {
+          groupUser.push(group);
+        }
+      }
+    }
+  } else {
+    for (const group of groups) {
+      const userid = JSON.parse(group.user_id);
+      const dvalue = JSON.parse(group.dvalue);
 
-    for (const key in dvalue) {
-      if (key === id.toString()) {
-        groupUser.push(group);
+      if (parseInt(userid) === parseInt(id) && dvalue.perm) {
+        const dataGroup = Object.keys(dvalue.perm);
+        const data = { dkey: "Permissions:" + dataGroup[1], key: dataGroup[0] };
+
+        groupUser.push(data);
       }
     }
   }
