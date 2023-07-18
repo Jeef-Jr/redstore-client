@@ -68,23 +68,6 @@ creative.removeAmountItem = async (id, item, amount) => {
   return true;
 };
 
-creative.addInventory = creative.addInventory = async (id, item, amount) => {
-  // if (await creative.isOnline(id)) {
-  //   const user_id = await creative.getPassaport(id);
-  //   console.log("entrou");
-  //   return lua(`vRP.GenerateItem(${user_id}, "${item}", ${amount}, true)`);
-  // } else {
-  //   const data = await getDatatable(id);
-  //   if (data) {
-  //     if (Array.isArray(data.inventory)) data.inventory = {};
-  //     if (data.inventory[item] && data.inventory[item].amount) {
-  //       data.inventory[item] = { amount: data.inventory[item].amount + amount };
-  //     } else data.inventory[item] = { amount };
-  //     await setDatatable(id, data);
-  //   }
-  // }
-};
-
 creative.addAmountItem = async (id, item, amount) => {
   const inventory = framework_network
     ? await lua(`vRP.Inventory(${id})`)
@@ -181,5 +164,9 @@ creative.removeGroup = async (id, permission) => {
 
   return true;
 };
+
+
+
+
 
 module.exports = creative;

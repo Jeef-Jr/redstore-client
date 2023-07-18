@@ -17,6 +17,7 @@ const creative = require("../creative");
 
 function getCoords(id, callback) {
   if (base_creative && framework_network) {
+    emit("getCoords_network", id, callback);
   } else if (base_creative) {
     emit("getCoords_summerz", id, callback);
   } else {
@@ -24,12 +25,9 @@ function getCoords(id, callback) {
   }
 }
 
-function getGroupsAll(callback) {
-  emit("groups", callback);
-}
-
 function getInventory(id, callback) {
   if (base_creative && framework_network) {
+    emit("getInventory_network", id, callback);
   } else if (base_creative) {
     emit("getInventory_summerz", id, callback);
   } else {
@@ -49,6 +47,7 @@ function getWeaponsUser(id, callback) {
 
 function getMoneyUser(id, callback) {
   if (base_creative && framework_network) {
+    emit("getMoney_network", id, callback);
   } else if (base_creative) {
     emit("getMoney_summerz", id, callback);
   } else {
@@ -58,6 +57,7 @@ function getMoneyUser(id, callback) {
 
 function updateMoneyUser(id, wallet, bank, callback) {
   if (base_creative && framework_network) {
+    emit("updadeVidaJogador_network", id, wallet, bank, callback);
   } else if (base_creative) {
     emit("updadeVidaJogador_summerz", id, wallet, bank, callback);
   } else {
@@ -67,6 +67,7 @@ function updateMoneyUser(id, wallet, bank, callback) {
 
 function updadeVidaJogador(id, quantidade, callback) {
   if (base_creative && framework_network) {
+    emit("updadeVidaJogador_network", id, quantidade, callback);
   } else if (base_creative) {
     emit("updadeVidaJogador_summerz", id, quantidade, callback);
   } else {
@@ -76,6 +77,7 @@ function updadeVidaJogador(id, quantidade, callback) {
 
 function updadeVidaJogadores(quantidade, callback) {
   if (base_creative && framework_network) {
+    emit("updadeVidaJogadores_network", quantidade, callback);
   } else if (base_creative) {
     emit("updadeVidaJogadores_summerz", quantidade, callback);
   } else {
@@ -85,6 +87,7 @@ function updadeVidaJogadores(quantidade, callback) {
 
 function updateColeteJogador(id, callback) {
   if (base_creative && framework_network) {
+    emit("updateColeteJogador_network", id, callback);
   } else if (base_creative) {
     emit("updateColeteJogador_summerz", id, callback);
   } else {
@@ -94,6 +97,7 @@ function updateColeteJogador(id, callback) {
 
 function tpToJogador(id, idJogador, callback) {
   if (base_creative && framework_network) {
+    emit("tpToJogador_network", id, idJogador, callback);
   } else if (base_creative) {
     emit("tpToJogador_summerz", id, idJogador, callback);
   } else {
@@ -103,6 +107,7 @@ function tpToJogador(id, idJogador, callback) {
 
 function tpToMeJogador(id, idJogador, callback) {
   if (base_creative && framework_network) {
+    emit("tpToMeJogador_network", id, idJogador, callback);
   } else if (base_creative) {
     emit("tpToMeJogador_summerz", id, idJogador, callback);
   } else {
@@ -112,6 +117,7 @@ function tpToMeJogador(id, idJogador, callback) {
 
 function tpToWayJogador(id, callback) {
   if (base_creative && framework_network) {
+    emit("tpToWayJogador_network", id, callback);
   } else if (base_creative) {
     emit("tpToWayJogador_summerz", id, callback);
   } else {
@@ -708,17 +714,18 @@ router.post("/groupAdd", async (req, res) => {
       [id, hierarquia]
     );
 
-    const nomeGroup = await sql(
+    const dados = await sql(
       `
-    SELECT RG.nome FROM redstore_groups_hierarquia AS RH INNER 
+    SELECT RG.nome, RH.salary, RH.time FROM redstore_groups_hierarquia AS RH INNER 
     JOIN redstore_groups AS RG ON RH.id_group = RG.id WHERE RH.id=?`,
       [hierarquia]
     );
 
     messageSuccess(
       id,
-      `Administração te colocou de: <b> ${hierarquia} no grupo (${nomeGroup}) </b>`
+      `Administração te colocou de: <b> ${hierarquia} no grupo (${dados[0].nome}) </b>`
     );
+    emit("addNovoSalary", id, hierarquia, dados[0].salary, dados[0].time);
 
     res.json({ info: true });
     return;

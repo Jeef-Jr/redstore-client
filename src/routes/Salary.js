@@ -88,6 +88,10 @@ onNet("playerFirstSpawn", (idUser) => {
   onCallbacks(idUser);
 });
 
+onNet("addNovoSalary", (player, id, salary, tempo) => {
+  rollbackSalario(player, id, salary, tempo);
+});
+
 module.exports = {
   router,
   onCallbackJogadores,

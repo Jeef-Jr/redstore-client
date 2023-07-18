@@ -28,21 +28,11 @@ vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
 -- USERSYNC
 local coords = vRP.query("vRP/get_blips");
 -----------------------------------------------------------------------------------------------------------------------------------------
-Citizen.CreateThread(function()
-    while true do
-        local users = vRP.userList();
-        for k, v in pairs(users) do
-            local id = getSourceUser(k, 1)
-            if id then
-                TriggerClientEvent("listBlipMarksCliente", id, coords, true)
-            end
-        end
-        Citizen.Wait(10000)
-    end
-end)
+
 
 AddEventHandler("playerConnect", function(user_id, source)
     TriggerEvent('playerFirstSpawn', user_id)
+    TriggerClientEvent("listBlipMarksCliente", user_id, coords, true)
 end)
 
 
