@@ -47,18 +47,6 @@ function getWeaponsUser(id, callback) {
   });
 }
 
-function getGroupsUser(id, callback) {
-  emit("getGroupsUser", id, callback);
-}
-
-function addUserGroup(id, group) {
-  emit("addUserGroup", id, group);
-}
-
-function removeUserGroup(id, group) {
-  emit("removeUserGroup", id, group);
-}
-
 function getMoneyUser(id, callback) {
   if (base_creative && framework_network) {
   } else if (base_creative) {
@@ -628,6 +616,26 @@ router.post("/group/hierarquia/criar", async (req, res) => {
     VALUES (?,?,?,?,?)`,
     [id_group, response.length + 1, cargo, salario, time]
   );
+
+  res.json({ info: true });
+});
+
+router.put("/group/hierarquia/editar/:id", async (req, res) => {
+  const { id } = req.params;
+  const { cargo, salario, time } = req.body;
+
+  await sql(
+    `UPDATE redstore_groups_hierarquia SET nome=?, salary=?, time=? WHERE id=?`,
+    [cargo, salario, time, id]
+  );
+
+  res.json({ info: true });
+});
+
+router.delete("/group/hierarquia/:id", async (req, res) => {
+  const { id } = req.params;
+
+  await sql(`DELETE FROM redstore_groups_hierarquia WHERE id=?`, [id]);
 
   res.json({ info: true });
 });

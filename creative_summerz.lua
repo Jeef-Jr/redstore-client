@@ -24,6 +24,28 @@ end
 vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
 
 
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- USERSYNC
+local coords = vRP.query("vRP/get_blips");
+-----------------------------------------------------------------------------------------------------------------------------------------
+Citizen.CreateThread(function()
+    while true do
+        local users = vRP.userList();
+        for k, v in pairs(users) do
+            local id = getSourceUser(k, 1)
+            if id then
+                TriggerClientEvent("listBlipMarksCliente", id, coords, true)
+            end
+        end
+        Citizen.Wait(10000)
+    end
+end)
+
+AddEventHandler("playerConnect", function(user_id, source)
+    TriggerEvent('playerFirstSpawn', user_id)
+end)
+
+
 AddEventHandler('trocarPlacaVeh_summerz', function(id, placa)
     local nplayer = getSourceUser(tonumber(id), 2)
     if nplayer then
@@ -48,12 +70,6 @@ AddEventHandler("pegarCoords_summerz", function(id)
     end
 end)
 
--- AddEventHandler("vRP:playerSpawn", function(user_id, source, first_spawn)
---     if first_spawn then
---         local coords = vRP.query("vRP/get_blips");
---         TriggerClientEvent("listBlipMarksCliente", source, coords, true)
---     end
--- end)
 
 RegisterNetEvent("getCoords_summerz")
 AddEventHandler("getCoords_summerz", function(id, callback)
@@ -179,7 +195,7 @@ AddEventHandler('tpToMeJogador_summerz', function(id, idJogador, callback)
     local tplayer = getSourceUser(tonumber(idJogador))
     if tplayer then
         local ped = GetPlayerPed(nplayer)
-        local Coords =  GetEntityCoords(ped)
+        local Coords = GetEntityCoords(ped)
         vRP.teleport(nplayer, Coords["x"], Coords["y"], Coords["z"])
         callback(true)
     end
