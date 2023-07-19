@@ -217,10 +217,8 @@ end)
 
 RegisterNetEvent('getItens')
 AddEventHandler('getItens', function(callback)
-  if vrpex then
     local data = vRP.itemListRedStore()
     callback(data)
-  end
 end)
 
 

@@ -9,7 +9,6 @@ vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
 
 local base_summerz = false
 
-
 function getSourceUser(id, tipo)
     return tipo == 1 and vRP.getUserId(parseInt(id)) or vRP.userSource(parseInt(id))
 end

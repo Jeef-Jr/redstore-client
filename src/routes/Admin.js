@@ -268,6 +268,7 @@ router.post("/spawnCar", async (req, res) => {
 
   new Promise(() => {
     if (base_creative && framework_network) {
+      emit("spawnCar_network", id, vehicle);
     } else if (base_creative) {
       emit("spawnCar_summerz", id, vehicle);
     } else {
@@ -402,6 +403,11 @@ router.post("/teleportar", async (req, res) => {
   const { id, x, y, z } = req.body;
 
   if (base_creative && framework_network) {
+    emit("teleportar_network", id, {
+      x: parseFloat(x),
+      y: parseFloat(y),
+      z: parseFloat(z),
+    });
   } else if (base_creative) {
     emit("teleportar_summerz", id, {
       x: parseFloat(x),
@@ -429,6 +435,7 @@ router.delete("/limpartInvUser/:idUser", (req, res) => {
   if (player) {
     new Promise(() => {
       if (base_creative && framework_network) {
+        emit("limparInv_network", idUser);
       } else if (base_creative) {
         emit("limparInv_summerz", idUser);
       } else {
@@ -487,7 +494,7 @@ router.get("/jogadores", async (req, res) => {
       ? await sql(`SELECT * FROM vrp_user_moneys WHERE user_id=?`, [id])
       : framework_network
       ? await sql(
-          `SELECT value as 'bank' from ${tables.bank} WHERE ${columns.campo_identificador_bank} =?`,
+          `SELECT ${columns.campo_bank} as 'bank' from ${tables.bank} WHERE ${columns.campo_identificador_bank} =?`,
           [id]
         )
       : identities.bank;
@@ -994,11 +1001,9 @@ router.put("/updateMoney/:id", async (req, res) => {
   const { wallet, bank } = req.body;
 
   if (base_creative ? await creative.isOnline(id) : await vrp.isOnline(id)) {
-    if (!framework_network && base_creative) {
-      await sql(
-        `UPDATE ${tables.bank} SET ${columns.campo_bank}= ? WHERE ${columns.campo_identificador_bank}= ?`,
-        [bank, id]
-      );
+    if (base_creative) {
+      await creative.setValor(id, bank);
+
       res.json({ info: true });
     } else {
       updateMoneyUser(id, wallet, bank, (callback) => {

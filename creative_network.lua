@@ -3,43 +3,42 @@ local Proxy = module("vrp", "lib/Proxy")
 vRP = Proxy.getInterface("vRP")
 vRPclient = Tunnel.getInterface("vRP")
 
+
 -- ________________ FUNÇÕES NATIVAS __________________________
 local network = true
 
 
 function getSourceUser(id, tipo)
-    return tipo == 1 and vRP.Passport(parseInt(id)) or vRP.Source(parseInt(id))
+    return tonumber(tipo) == 1 and vRP.Passport(id) or vRP.Source(id)
 end
 
 function setHealthOrArmor(id, tipo, quantidade)
     if tipo == 2 then
         return vRP.SetArmour(id, 100)
     else
-        return vRPclient.Revive(id, parseInt(quantidade))
+        return vRPclient.Revive(id, tonumber(quantidade))
     end
 end
 
 -- ___________________________________________________________
 
-vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
-
------------------------------------------------------------------------------------------------------------------------------------------
--- USERSYNC
-local coords = vRP.query("vRP/get_blips");
------------------------------------------------------------------------------------------------------------------------------------------
 
 
-AddEventHandler("playerConnect", function(user_id, source)
+AddEventHandler("Connect", function(user_id, source)
     if network then
         TriggerEvent('playerFirstSpawn', user_id)
-        TriggerClientEvent("listBlipMarksCliente", user_id, coords, true)
+        TriggerEvent('refreshBlip', user_id)
     end
+end)
+
+AddEventHandler('listBlipMarksNetwork', function(user, coords)
+    TriggerClientEvent("listBlipMarksCliente", user, coords, true)
 end)
 
 
 AddEventHandler('trocarPlacaVeh_network', function(id, placa)
     if network then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.Source(id)
         if nplayer then
             TriggerClientEvent('trocarPlaca', nplayer, placa)
         end
@@ -49,7 +48,8 @@ end)
 RegisterNetEvent("spawnCar_network")
 AddEventHandler("spawnCar_network", function(id, vehicle)
     if network then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.Source(tonumber(id))
+        print(nplayer)
         if nplayer then
             TriggerClientEvent('spawnarvehicle', nplayer, vehicle)
         end
@@ -71,11 +71,11 @@ end)
 RegisterNetEvent("getCoords_network")
 AddEventHandler("getCoords_network", function(id, callback)
     if network then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.Source(id)
         if nplayer then
             local ped = GetPlayerPed(nplayer)
             local coords = GetEntityCoords(ped)
-            local position = { x = mathLegth(coords["x"]), y = mathLegth(coords["y"]), z = mathLegth(coords["z"]) }
+            local position = { x = coords["x"], y = coords["y"], z = coords["z"] }
             callback(position)
         else
             callback(nil)
@@ -87,13 +87,13 @@ RegisterNetEvent("teleportar_network")
 AddEventHandler("teleportar_network", function(id, coords)
     if network then
         if id and coords and coords.x and coords.y and coords.z then
-            local user_id = getSourceUser(tonumber(id), 2)
+            local user_id = vRP.Source(id)
 
             local x = tonumber(coords.x)
             local y = tonumber(coords.y)
             local z = tonumber(coords.z)
             if user_id then
-                vRP.teleport(user_id, x, y, z)
+                vRP.Teleport(user_id, x, y, z)
             else
                 print("ID de usuário inválido.")
             end
@@ -150,7 +150,7 @@ end)
 RegisterNetEvent('updateMoney_network')
 AddEventHandler('updateMoney_network', function(id, wallet, bank, callback)
     if network then
-        local user_id = getSourceUser(tonumber(id), 1)
+        local user_id = vRP.Passport(id)
         local money_user = tonumber(vRP.GetBank(user_id))
 
         if money_user > tonumber(bank) then
@@ -168,9 +168,9 @@ end)
 RegisterNetEvent('updadeVidaJogador_network')
 AddEventHandler('updadeVidaJogador_network', function(id, quantidade, callback)
     if network then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.Source(id)
         if nplayer then
-            setHealthOrArmor(nplayer, 1, quantidade)
+            vRPclient.Revive(nplayer, tonumber(quantidade))
             callback(true)
         end
     end
@@ -181,9 +181,9 @@ AddEventHandler('updadeVidaJogadores_network', function(quantidade, callback)
     if network then
         local users = vRP.Players();
         for k, v in pairs(users) do
-            local id = getSourceUser(k, 1)
+            local id = vRP.Passport(k)
             if id then
-                setHealthOrArmor(id, 1, quantidade)
+                vRPclient.Revive(id, tonumber(quantidade))
                 TriggerClientEvent("Notify", id, "sucesso", "Administração recuperou sua vida.")
             end
         end
@@ -195,9 +195,9 @@ end)
 RegisterNetEvent('updateColeteJogador_network')
 AddEventHandler('updateColeteJogador_network', function(id, callback)
     if network then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.Source(id)
         if nplayer then
-            setHealthOrArmor(nplayer, 2, 0)
+            vRP.SetArmour(id, 100)
             callback(true)
         end
     end
@@ -206,8 +206,8 @@ end)
 RegisterNetEvent('tpToJogador_network')
 AddEventHandler('tpToJogador_network', function(id, idJogador, callback)
     if network then
-        local nplayer = getSourceUser(tonumber(id), 2)
-        local tplayer = getSourceUser(tonumber(idJogador), 2)
+        local nplayer = vRP.Source(id)
+        local tplayer = vRP.Source(idJogador)
         if tplayer then
             local ped = GetPlayerPed(tplayer)
             local Coords = GetEntityCoords(ped)
@@ -220,8 +220,8 @@ end)
 RegisterNetEvent('tpToMeJogador_network')
 AddEventHandler('tpToMeJogador_network', function(id, idJogador, callback)
     if network then
-        local nplayer = getSourceUser(tonumber(id), 2)
-        local tplayer = getSourceUser(tonumber(idJogador))
+        local nplayer = vRP.Source(id)
+        local tplayer = vRP.Source(idJogador)
         if tplayer then
             local ped = GetPlayerPed(nplayer)
             local Coords = GetEntityCoords(ped)
@@ -235,7 +235,7 @@ end)
 RegisterNetEvent('tpToWayJogador_network')
 AddEventHandler('tpToWayJogador_network', function(id, callback)
     if network then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.Source(id)
         if nplayer then
             TriggerClientEvent('tptoway', nplayer)
             callback(true)
