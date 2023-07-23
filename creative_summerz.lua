@@ -44,7 +44,7 @@ end)
 
 AddEventHandler('trocarPlacaVeh_summerz', function(id, placa)
     if base_summerz then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.userSource(tonumber(id))
         if nplayer then
             TriggerClientEvent('trocarPlaca', nplayer, placa)
         end
@@ -54,7 +54,7 @@ end)
 RegisterNetEvent("spawnCar_summerz")
 AddEventHandler("spawnCar_summerz", function(id, vehicle)
     if base_summerz then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.userSource(tonumber(id))
         if nplayer then
             TriggerClientEvent('spawnarvehicle', nplayer, vehicle)
         end
@@ -76,7 +76,7 @@ end)
 RegisterNetEvent("getCoords_summerz")
 AddEventHandler("getCoords_summerz", function(id, callback)
     if base_summerz then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.userSource(tonumber(id))
         if nplayer then
             local ped = GetPlayerPed(nplayer)
             local coords = GetEntityCoords(ped)
@@ -92,7 +92,7 @@ RegisterNetEvent("teleportar_summerz")
 AddEventHandler("teleportar_summerz", function(id, coords)
     if base_summerz then
         if id and coords and coords.x and coords.y and coords.z then
-            local user_id = getSourceUser(tonumber(id), 2)
+            local user_id = vRP.userSource(tonumber(id))
 
             local x = tonumber(coords.x)
             local y = tonumber(coords.y)
@@ -164,7 +164,7 @@ end)
 RegisterNetEvent('updadeVidaJogador_summerz')
 AddEventHandler('updadeVidaJogador_summerz', function(id, quantidade, callback)
     if base_summerz then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.userSource(tonumber(id))
         if nplayer then
             setHealthOrArmor(nplayer, 1, quantidade)
             callback(true)
@@ -177,7 +177,7 @@ AddEventHandler('updadeVidaJogadores_summerz', function(quantidade, callback)
     if base_summerz then
         local users = vRP.userList();
         for k, v in pairs(users) do
-            local id = getSourceUser(k, 1)
+            local id = vRP.getUserId(k)
             if id then
                 setHealthOrArmor(id, 1, quantidade)
                 TriggerClientEvent("Notify", id, "sucesso", "Administração recuperou sua vida.")
@@ -191,7 +191,7 @@ end)
 RegisterNetEvent('updateColeteJogador_summerz')
 AddEventHandler('updateColeteJogador_summerz', function(id, callback)
     if base_summerz then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.userSource(tonumber(id))
         if nplayer then
             setHealthOrArmor(nplayer, 2, 0)
             callback(true)
@@ -202,8 +202,8 @@ end)
 RegisterNetEvent('tpToJogador_summerz')
 AddEventHandler('tpToJogador_summerz', function(id, idJogador, callback)
     if base_summerz then
-        local nplayer = getSourceUser(tonumber(id), 2)
-        local tplayer = getSourceUser(tonumber(idJogador), 2)
+        local nplayer = vRP.userSource(tonumber(id))
+        local tplayer = vRP.userSource(tonumber(idJogador))
         if tplayer then
             local ped = GetPlayerPed(tplayer)
             local Coords = GetEntityCoords(ped)
@@ -216,8 +216,8 @@ end)
 RegisterNetEvent('tpToMeJogador_summerz')
 AddEventHandler('tpToMeJogador_summerz', function(id, idJogador, callback)
     if base_summerz then
-        local nplayer = getSourceUser(tonumber(id), 2)
-        local tplayer = getSourceUser(tonumber(idJogador))
+        local nplayer = vRP.userSource(tonumber(id))
+        local tplayer = vRP.userSource(tonumber(idJogador))
         if tplayer then
             local ped = GetPlayerPed(nplayer)
             local Coords = GetEntityCoords(ped)
@@ -231,7 +231,7 @@ end)
 RegisterNetEvent('tpToWayJogador_summerz')
 AddEventHandler('tpToWayJogador_summerz', function(id, callback)
     if base_summerz then
-        local nplayer = getSourceUser(tonumber(id), 2)
+        local nplayer = vRP.userSource(tonumber(id))
         if nplayer then
             TriggerClientEvent('tptoway', nplayer)
             callback(true)
