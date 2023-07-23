@@ -1,0 +1,40 @@
+{
+    "token": "SEU-TOKEN",
+    "base_creative": true,
+    "framework_network": true,
+    "production": true,
+    "mysql": {
+      "host": "localhost",
+      "port": 3306,
+      "database": "",
+      "user": "root",
+      "password": ""
+    },
+    "tables": {
+      "accounts": "accounts",
+      "characters": "characters",
+      "priority": "propertys",
+      "vehicles": "vehicles",
+      "bank": "characters"
+    },
+    "columns": {
+      "campo_identificador_accounts": "id",
+      "campo_identificador_characters": "id",
+      "campo_identificador_properties": "Passport",
+      "campo_properties_name": "Name",
+      "campo_identificador_vehicles": "Passport",
+      "campo_identificador_bank": "id",
+      "campo_bank": "bank"
+    },
+    "actives": {
+      "is_active_campo_age": false,
+      "is_active_campo_serial_propertys": true
+    },
+    "notify": {
+      "success": "sucesso",
+      "negado": "negado"
+    },
+  
+    "webhook": "link-webhook-discord"
+  }
+  

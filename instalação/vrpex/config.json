@@ -1,0 +1,40 @@
+{
+    "token": "SEU-TOKEN",
+    "base_creative": false,
+    "framework_network": false,
+    "production": true,
+    "mysql": {
+      "host": "localhost",
+      "port": 3306,
+      "database": "",
+      "user": "root",
+      "password": ""
+    },
+    "tables": {
+      "accounts": "vrp_users",
+      "characters": "vrp_user_identities",
+      "vehicles": "vrp_user_vehicles",
+      "priority": "vrp_homes_permissions",
+      "bank": "vrp_user_moneys"
+    },
+    "columns": {
+      "campo_identificador_accounts": "id",
+      "campo_identificador_characters": "user_id",
+      "campo_identificador_properties": "user_id",
+      "campo_properties_name": "home",
+      "campo_identificador_vehicles": "user_id",
+      "campo_identificador_bank": "user_id",
+      "campo_bank": "bank"
+    },
+    "actives": {
+      "is_active_campo_age": true,
+      "is_active_campo_serial_propertys": false
+    },
+    "notify": {
+      "success": "sucesso",
+      "negado": "negado"
+    },
+  
+    "webhook": "link-webhook-discord"
+  }
+  
