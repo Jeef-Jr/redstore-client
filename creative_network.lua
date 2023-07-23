@@ -5,7 +5,7 @@ vRPclient = Tunnel.getInterface("vRP")
 
 
 -- ________________ FUNÇÕES NATIVAS __________________________
-local network = true
+local network = false
 
 
 function getSourceUser(id, tipo)

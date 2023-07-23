@@ -953,7 +953,7 @@ router.put("/updateIdentities", async (req, res) => {
     );
   }
 
-  messageFail(id, `Administração atualizou sua identidade.`);
+  messageSuccess(id, `Administração atualizou sua identidade.`);
 
   res.json({
     info: true,

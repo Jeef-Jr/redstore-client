@@ -29,12 +29,13 @@ vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
 
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- USERSYNC
-local coords = vRP.query("vRP/get_blips");
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 
 AddEventHandler("playerConnect", function(user_id, source)
     if base_summerz then
+        local coords = vRP.query("vRP/get_blips");
+
         TriggerEvent('playerFirstSpawn', user_id)
         TriggerClientEvent("listBlipMarksCliente", user_id, coords, true)
     end

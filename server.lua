@@ -50,7 +50,7 @@ end)
 
 AddEventHandler('trocarPlacaVeh', function(id, placa)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 1)
+    local nplayer = vRP.getUserId(tonumber(id))
     if nplayer then
       TriggerClientEvent('trocarPlaca', nplayer, placa)
     end
@@ -60,7 +60,7 @@ end)
 RegisterNetEvent("emitirNotify")
 AddEventHandler("emitirNotify", function(id, variavel, mensagem, success)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 1)
+    local nplayer = vRP.getUserId(tonumber(id))
     if nplayer then
       if success then
         TriggerClientEvent("Notify", nplayer, tostring(variavel), mensagem)
@@ -75,7 +75,7 @@ end)
 RegisterNetEvent("spawnCar")
 AddEventHandler("spawnCar", function(id, vehicle)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 1)
+    local nplayer = vRP.getUserId(tonumber(id))
     if nplayer then
       TriggerClientEvent('spawnarvehicle', nplayer, vehicle)
     end
@@ -109,7 +109,7 @@ end)
 
 AddEventHandler('notificationUser', function(id, isSucesso, mensagem)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 2)
+    local nplayer = vRP.getUserSource(tonumber(id))
     if nplayer then
       TriggerEvent("notifyServer", isSucesso, mensagem)
     end
@@ -135,7 +135,7 @@ end)
 RegisterNetEvent("getCoords")
 AddEventHandler("getCoords", function(id, callback)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 1)
+    local nplayer = vRP.getUserId(tonumber(id))
     if nplayer then
       local x, y, z = vRPclient.getPosition(nplayer)
       if x and y and z then
@@ -154,7 +154,7 @@ RegisterNetEvent("teleportar")
 AddEventHandler("teleportar", function(id, coords)
   if vrpex then
     if id and coords and coords.x and coords.y and coords.z then
-      local user_id = getSourceUser(tonumber(id), 2)
+      local user_id = vRP.getUserSource(tonumber(id))
 
       local x = tonumber(coords.x)
       local y = tonumber(coords.y)
@@ -173,7 +173,7 @@ end)
 RegisterNetEvent("limparArmas")
 AddEventHandler("limparArmas", function(id)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 1)
+    local nplayer = vRP.getUserId(tonumber(id))
     local user_id = tonumber(id)
     if user_id then
       vRPclient.replaceWeapons(nplayer, {})
@@ -217,8 +217,8 @@ end)
 
 RegisterNetEvent('getItens')
 AddEventHandler('getItens', function(callback)
-    local data = vRP.itemListRedStore()
-    callback(data)
+  local data = vRP.itemListRedStore()
+  callback(data)
 end)
 
 
@@ -235,7 +235,7 @@ end)
 RegisterNetEvent('updateMoney')
 AddEventHandler('updateMoney', function(id, wallet, bank, callback)
   if vrpex then
-    local user_id = getSourceUser(tonumber(id), 1)
+    local user_id = vRP.getUserId(tonumber(id))
 
     vRP.setMoney(user_id, wallet)
     vRP.setBankMoney(user_id, bank)
@@ -248,9 +248,9 @@ end)
 RegisterNetEvent('updadeVidaJogador')
 AddEventHandler('updadeVidaJogador', function(id, quantidade, callback)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 1)
+    local nplayer = vRP.getUserId(tonumber(id))
     if nplayer then
-      setHealthOrArmor(nplayer, 1, quantidade)
+      vRPclient.setHealth(nplayer, tonumber(quantidade))
       callback(true)
     end
   end
@@ -263,7 +263,7 @@ AddEventHandler('updadeVidaJogadores', function(quantidade, callback)
     for k, v in pairs(users) do
       local id = getSourceUser(k, 1)
       if id then
-        setHealthOrArmor(id, 1, quantidade)
+        vRPclient.setHealth(id, tonumber(quantidade))
         TriggerClientEvent("Notify", id, "sucesso", "Administração recuperou sua vida.")
       end
     end
@@ -275,9 +275,9 @@ end)
 RegisterNetEvent('updateColeteJogador')
 AddEventHandler('updateColeteJogador', function(id, callback)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 2)
+    local nplayer = vRP.getUserSource(tonumber(id))
     if nplayer then
-      setHealthOrArmor(nplayer, 2, 0)
+      vRPclient.setArmour(nplayer, 100)
       callback(true)
     end
   end
@@ -286,8 +286,8 @@ end)
 RegisterNetEvent('tpToJogador')
 AddEventHandler('tpToJogador', function(id, idJogador, callback)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 2)
-    local tplayer = getSourceUser(tonumber(idJogador), 2)
+    local nplayer = vRP.getUserSource(tonumber(id))
+    local tplayer = vRP.getUserSource(tonumber(idJogador))
     if tplayer then
       vRPclient.teleport(nplayer, vRPclient.getPosition(tplayer))
       callback(true)
@@ -298,8 +298,9 @@ end)
 RegisterNetEvent('tpToMeJogador')
 AddEventHandler('tpToMeJogador', function(id, idJogador, callback)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 2)
-    local tplayer = getSourceUser(tonumber(idJogador))
+    local nplayer = vRP.getUserSource(tonumber(id))
+    local tplayer = vRP.getUserSource(tonumber(idJogador))
+
     if tplayer then
       local x, y, z = vRPclient.getPosition(nplayer)
       vRPclient.teleport(tplayer, x, y, z)
@@ -313,7 +314,7 @@ end)
 RegisterNetEvent('tpToWayJogador')
 AddEventHandler('tpToWayJogador', function(id, callback)
   if vrpex then
-    local nplayer = getSourceUser(tonumber(id), 2)
+    local nplayer = vRP.getUserSource(tonumber(id))
     if nplayer then
       TriggerClientEvent('tptoway', nplayer)
       callback(true)
