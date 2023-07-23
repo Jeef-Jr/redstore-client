@@ -5,7 +5,7 @@ vRPclient = Tunnel.getInterface("vRP")
 
 
 -- ________________ FUNÇÕES NATIVAS __________________________
-local network = false
+local network = true
 
 
 function getSourceUser(id, tipo)
@@ -49,7 +49,6 @@ RegisterNetEvent("spawnCar_network")
 AddEventHandler("spawnCar_network", function(id, vehicle)
     if network then
         local nplayer = vRP.Source(tonumber(id))
-        print(nplayer)
         if nplayer then
             TriggerClientEvent('spawnarvehicle', nplayer, vehicle)
         end
