@@ -327,15 +327,7 @@ router.post("/addCar", async (req, res) => {
 router.get("/coords/:id", async (req, res) => {
   const { id } = req.params;
 
-  let isOnline = false;
-
-  if (base_creative) {
-    isOnline = await creative.isOnline(id);
-  } else {
-    isOnline = await vrp.getIsOnline(id);
-  }
-
-  if (isOnline) {
+  if (base_creative ? await creative.isOnline(id) : await vrp.getIsOnline(id)) {
     getCoords(id, (position) => {
       if (position) {
         res.json(position);

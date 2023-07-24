@@ -8,10 +8,6 @@ vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
 -- Mude para true se sua base for vrpex
 local vrpex = false
 
-local cfg = not vrpex and module("vrp", "cfg/groups") or ""
-
-local groups = cfg.groups
-
 -- ________________ FUNÇÕES NATIVAS __________________________
 
 function getSourceUser(id, tipo)
