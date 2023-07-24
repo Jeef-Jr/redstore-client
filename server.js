@@ -45,6 +45,10 @@ async function start() {
 
   await sql(utils.createTableCoords());
   await sql(utils.createTableHome());
+  await sql(utils.createTableGroup());
+  await sql(utils.createTableGroupHierarquia());
+  await sql(utils.createTableGroupUser());
+  await sql(utils.createTableHistoryPagament());
 
   if (base_creative) {
     sql(utils.createTableInteriores());

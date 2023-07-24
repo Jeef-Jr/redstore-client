@@ -1,3 +1,54 @@
+module.exports.createTableGroup = () => {
+  return `
+	CREATE TABLE IF NOT EXISTS redstore_groups (
+		id int(11) NOT NULL AUTO_INCREMENT,
+		nome varchar(50) NOT NULL DEFAULT '0',
+		PRIMARY KEY (id)
+	  )
+	`;
+};
+
+module.exports.createTableGroupHierarquia = () => {
+  return `
+	CREATE TABLE IF NOT EXISTS redstore_groups_hierarquia (
+		id int(11) NOT NULL AUTO_INCREMENT,
+		id_group int(11) NOT NULL DEFAULT 0,
+		hierarquia int(11) NOT NULL DEFAULT 0,
+		nome varchar(50) NOT NULL DEFAULT '0',
+		salary double DEFAULT NULL,
+		time int(11) DEFAULT NULL,
+		PRIMARY KEY (id),
+		KEY FK__redstore_groups (id_group),
+		CONSTRAINT FK__redstore_groups FOREIGN KEY (id_group) REFERENCES redstore_groups (id) ON DELETE CASCADE ON UPDATE NO ACTION
+	  )
+	`;
+};
+module.exports.createTableGroupUser = () => {
+  return `
+  CREATE TABLE IF NOT EXISTS redstore_groups_user (
+	id int(11) NOT NULL AUTO_INCREMENT,
+	idHierarquia int(11) DEFAULT NULL,
+	idUser int(11) DEFAULT NULL,
+	PRIMARY KEY (id),
+	KEY FK_redstore_groups_user_redstore_groups_hierarquia (idHierarquia),
+	CONSTRAINT FK_redstore_groups_user_redstore_groups_hierarquia FOREIGN KEY (idHierarquia) REFERENCES redstore_groups_hierarquia (id) ON DELETE CASCADE ON UPDATE NO ACTION
+  )
+	`;
+};
+module.exports.createTableHistoryPagament = () => {
+  return `
+	CREATE TABLE IF NOT EXISTS redstore_history_pagament (
+		id int(11) NOT NULL AUTO_INCREMENT,
+		idUser int(11) DEFAULT NULL,
+		idHierarquia int(11) DEFAULT NULL,
+		data datetime DEFAULT NULL,
+		PRIMARY KEY (id),
+		KEY FK_redstore_history_pagament_redstore_groups_hierarquia (idHierarquia),
+		CONSTRAINT FK_redstore_history_pagament_redstore_groups_hierarquia FOREIGN KEY (idHierarquia) REFERENCES redstore_groups_hierarquia (id) ON DELETE CASCADE ON UPDATE NO ACTION
+	  )
+	`;
+};
+
 module.exports.createTableCoords = () => {
   return `
   CREATE TABLE IF NOT EXISTS redstore_coords (
