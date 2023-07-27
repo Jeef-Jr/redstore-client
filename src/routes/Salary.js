@@ -94,17 +94,7 @@ const onCallbackJogadores = async () => {
 
   if (jogadores.length > 0) {
     for (let i = 0; i < jogadores.length; i++) {
-      let id = -1;
-
-      if (base_creative && framework_network) {
-        id = jogadores[i];
-      } else if (base_creative) {
-        id = Object.entries(jogadores[i]).map(([name]) => {
-          return name;
-        });
-      } else {
-        id = jogadores[i];
-      }
+      const id = jogadores[i];
 
       onCallbacks(parseInt(id));
     }
@@ -112,6 +102,7 @@ const onCallbackJogadores = async () => {
 };
 
 const onCallbacks = async (idUser) => {
+
   console.log("Jogador Online", idUser);
 
   const gruposDoJogador = await sql(
