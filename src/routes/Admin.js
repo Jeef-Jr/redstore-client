@@ -246,7 +246,7 @@ router.post("/banco", async (req, res) => {
 
   if (value > 0) {
     base_creative
-      ? await creative.bank(id, value)
+      ? await creative.addBank(id, value)
       : await vrp.addBank(id, value);
 
     messageSuccess(id, `Foi adicionado <b>R$ ${value} </b> na sua conta.`);
