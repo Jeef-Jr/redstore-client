@@ -7,9 +7,37 @@ const creative = require("../creative");
 const { lua } = require("../lua");
 
 function messageSuccess(id, message) {
-  new Promise(() => {
-    emit("emitirNotify", id, notify.success, message, true);
-  });
+  if (base_creative && framework_network) {
+    emit(
+      "emitirNotifyNetwork",
+      id,
+      notify.success,
+      message,
+      true,
+      notify.use_source,
+      notify.time
+    );
+  } else if (base_creative) {
+    emit(
+      "emitirNotifySummerz",
+      id,
+      notify.success,
+      message,
+      true,
+      notify.use_source,
+      notify.time
+    );
+  } else {
+    emit(
+      "emitirNotify",
+      id,
+      notify.success,
+      message,
+      true,
+      notify.use_source,
+      notify.time
+    );
+  }
 }
 
 function adicionarSalario(player, salary) {
@@ -56,19 +84,30 @@ function gerenciarSalarios(player, gruposDoJogador) {
 }
 
 const onCallbackJogadores = async () => {
-  const jogadores =
+  const jogadores = [
     base_creative && framework_network
       ? await lua(`vRP.Players()`)
       : base_creative
       ? await lua(`vRP.userList()`)
-      : await lua(`vRP.getUsers()`);
+      : await lua(`vRP.getUsers()`),
+  ];
 
-  for (let jogador = 1; jogador <= jogadores.length; jogador++) {
-    onCallbacks(jogador);
+  console.log(jogadores.length);
+
+  for (let i = 0; i < jogadores.length; i++) {
+    const id = !framework_network ? Object.entries(jogadores[i]).map(([name]) => {
+      return name;
+    }) : jogadores[i]
+
+    console.log(jogadores[i]);
+    onCallbacks(parseInt(id));
   }
 };
 
 const onCallbacks = async (idUser) => {
+
+  console.log("Jogador Online", idUser);
+
   const gruposDoJogador = await sql(
     `SELECT RGH.id, RGH.salary, RGH.time FROM redstore_groups_hierarquia AS RGH JOIN redstore_groups_user AS RG ON RGH.id = RG.idHierarquia WHERE RG.idUser = ?`,
     [idUser]

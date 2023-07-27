@@ -54,14 +54,14 @@ AddEventHandler('trocarPlacaVeh', function(id, placa)
 end)
 
 RegisterNetEvent("emitirNotify")
-AddEventHandler("emitirNotify", function(id, variavel, mensagem, success)
+AddEventHandler("emitirNotify", function(id, variavel, mensagem, success, isSource, time)
   if vrpex then
-    local nplayer = vRP.getUserId(tonumber(id))
+    local nplayer = isSource and vRP.getUserSource(id) or vRP.getUserId(tonumber(id))
     if nplayer then
       if success then
-        TriggerClientEvent("Notify", nplayer, tostring(variavel), mensagem)
+        TriggerClientEvent("Notify", nplayer, tostring(variavel), mensagem, tonumber(time) > 0 and time)
       else
-        TriggerClientEvent("Notify", nplayer, variavel, mensagem)
+        TriggerClientEvent("Notify", nplayer, variavel, mensagem, tonumber(time) > 0 and time)
       end
     end
   end
@@ -317,3 +317,5 @@ AddEventHandler('tpToWayJogador', function(id, callback)
     end
   end
 end)
+
+

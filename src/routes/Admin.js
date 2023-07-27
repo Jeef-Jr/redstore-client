@@ -126,9 +126,37 @@ function tpToWayJogador(id, callback) {
 }
 
 function messageSuccess(id, message) {
-  new Promise(() => {
-    emit("emitirNotify", id, notify.success, message, true);
-  });
+  if (base_creative && framework_network) {
+    emit(
+      "emitirNotifyNetwork",
+      id,
+      notify.success,
+      message,
+      true,
+      notify.use_source,
+      notify.time
+    );
+  } else if (base_creative) {
+    emit(
+      "emitirNotifySummerz",
+      id,
+      notify.success,
+      message,
+      true,
+      notify.use_source,
+      notify.time
+    );
+  } else {
+    emit(
+      "emitirNotify",
+      id,
+      notify.success,
+      message,
+      true,
+      notify.use_source,
+      notify.time
+    );
+  }
 }
 
 function messageFail(id, message) {

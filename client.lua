@@ -172,8 +172,24 @@ AddEventHandler('tptoway', function()
 end)
 
 
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- ADMIN:INITSPECTATE
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterNetEvent("admin:initSpectate")
+AddEventHandler("admin:initSpectate",function(source)
+	if not NetworkIsInSpectatorMode() then
+		local Pid = GetPlayerFromServerId(source)
+		local Ped = GetPlayerPed(Pid)
 
-Citizen.CreateThread(function()
-	Citizen.Wait(1000) -- Aguarda 1 segundo
-	TriggerServerEvent('salario:pagamentoLoop')
+		NetworkSetInSpectatorMode(true,Ped)
+	end
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- ADMIN:RESETSPECTATE
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterNetEvent("admin:resetSpectate")
+AddEventHandler("admin:resetSpectate",function()
+	if NetworkIsInSpectatorMode() then
+		NetworkSetInSpectatorMode(false)
+	end
 end)

@@ -37,16 +37,15 @@ async function start() {
  $$$$$$$  $$    $$ $$ |  $$ |   $$$$$$  |$$ | __$$ |  $$ $$ |  $$/$$    $$ |
  $$ |  $$ $$$$$$$$/$$ \__$$ |  /  \__$$ |$$ |/  $$ \__$$ $$ |     $$$$$$$$/ 
  $$ |  $$ $$       $$    $$ |  $$    $$/ $$  $$/$$    $$/$$ |     $$       |
- $$/   $$/ $$$$$$$/ $$$$$$$/    $$$$$$/   $$$$/  $$$$$$/ $$/       $$$$$$$/ 
-                                                                                                                                                  
+ $$/   $$/ $$$$$$$/ $$$$$$$/    $$$$$$/   $$$$/  $$$$$$/ $$/       $$$$$$$/                                                                                                                                       
  `);
 
   await sql(utils.createTableCoords());
   await sql(utils.createTableHome());
-  await sql(utils.createTableGroup());
-  await sql(utils.createTableGroupHierarquia());
-  await sql(utils.createTableGroupUser());
-  await sql(utils.createTableHistoryPagament());
+  // await sql(utils.createTableGroup());
+  // await sql(utils.createTableGroupHierarquia());
+  // await sql(utils.createTableGroupUser());
+  // await sql(utils.createTableHistoryPagament());
 
   if (base_creative) {
     sql(utils.createTableInteriores());
@@ -92,6 +91,7 @@ async function start() {
       }),
     10000
   );
+
   onCallbackJogadores();
 }
 

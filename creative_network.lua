@@ -7,21 +7,19 @@ vRPclient = Tunnel.getInterface("vRP")
 -- ________________ FUNÇÕES NATIVAS __________________________
 local network = true
 
-
-function getSourceUser(id, tipo)
-    return tonumber(tipo) == 1 and vRP.Passport(id) or vRP.Source(id)
-end
-
-function setHealthOrArmor(id, tipo, quantidade)
-    if tipo == 2 then
-        return vRP.SetArmour(id, 100)
-    else
-        return vRPclient.Revive(id, tonumber(quantidade))
+RegisterNetEvent("emitirNotifyNetwork")
+AddEventHandler("emitirNotifyNetwork", function(id, variavel, mensagem, success, isSource, time)
+  if network then
+    local nplayer = isSource and vRP.Source(id) or vRP.Passport(tonumber(id))
+    if nplayer then
+      if success then
+        TriggerClientEvent("Notify", nplayer, tostring(variavel), mensagem, tonumber(time) > 0 and time)
+      else
+        TriggerClientEvent("Notify", nplayer, variavel, mensagem, tonumber(time) > 0 and time)
+      end
     end
-end
-
--- ___________________________________________________________
-
+  end
+end)
 
 
 AddEventHandler("Connect", function(user_id, source)
@@ -58,7 +56,7 @@ end)
 RegisterNetEvent("pegarCoords_network")
 AddEventHandler("pegarCoords_network", function(id)
     if network then
-        local nplayer = vRP.getUserSource(tonumber(id))
+        local nplayer = vRP.Source(tonumber(id))
         if nplayer then
             local x, y, z = vRPclient.getPosition(nplayer)
             playerCoords[id] = { x, y, z }
@@ -238,6 +236,37 @@ AddEventHandler('tpToWayJogador_network', function(id, callback)
         if nplayer then
             TriggerClientEvent('tptoway', nplayer)
             callback(true)
+        end
+    end
+end)
+
+local Spectate = {}
+
+RegisterCommand("spec", function(source, args, rawCommand)
+    if network then
+        local user_id = vRP.Passport(source)
+        if user_id then
+            if vRP.hasPerm(user_id, "Administração", "Owner") then
+                if Spectate[user_id] then
+                    local Ped = GetPlayerPed(Spectate[user_id])
+                    if DoesEntityExist(Ped) then
+                        SetEntityDistanceCullingRadius(Ped, 0.0)
+                    end
+                    TriggerClientEvent("admin:resetSpectate", source)
+                    Spectate[user_id] = nil
+                else
+                    local nsource = vRP.Source(tonumber(args[1]))
+                    if nsource then
+                        local Ped = GetPlayerPed(nsource)
+                        if DoesEntityExist(Ped) then
+                            SetEntityDistanceCullingRadius(Ped, 999999999.0)
+                            Wait(1000)
+                            TriggerClientEvent("admin:initSpectate", source, nsource)
+                            Spectate[user_id] = nsource
+                        end
+                    end
+                end
+            end
         end
     end
 end)

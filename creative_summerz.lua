@@ -9,28 +9,22 @@ vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
 
 local base_summerz = false
 
-function getSourceUser(id, tipo)
-    return tipo == 1 and vRP.getUserId(parseInt(id)) or vRP.userSource(parseInt(id))
-end
-
-function setHealthOrArmor(id, tipo, quantidade)
-    if tipo == 2 then
-        return vRP.setArmour(id, 100)
-    else
-        return vRPclient.revivePlayer(id, parseInt(quantidade))
-    end
-end
-
--- ___________________________________________________________
-
-
-vRP.prepare("vRP/get_blips", "SELECT * FROM redstore_coords")
-
-
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- USERSYNC
 -----------------------------------------------------------------------------------------------------------------------------------------
-
+RegisterNetEvent("emitirNotifySummerz")
+AddEventHandler("emitirNotifySummerz", function(id, variavel, mensagem, success, isSource, time)
+  if base_summerz then
+    local nplayer = isSource and vRP.userSource(id) or vRP.getUserId(tonumber(id))
+    if nplayer then
+      if success then
+        TriggerClientEvent("Notify", nplayer, tostring(variavel), mensagem, tonumber(time) > 0 and time)
+      else
+        TriggerClientEvent("Notify", nplayer, variavel, mensagem, tonumber(time) > 0 and time)
+      end
+    end
+  end
+end)
 
 AddEventHandler("playerConnect", function(user_id, source)
     if base_summerz then
@@ -64,7 +58,7 @@ end)
 RegisterNetEvent("pegarCoords_summerz")
 AddEventHandler("pegarCoords_summerz", function(id)
     if base_summerz then
-        local nplayer = vRP.getUserSource(tonumber(id))
+        local nplayer = vRP.userSource(tonumber(id))
         if nplayer then
             local x, y, z = vRPclient.getPosition(nplayer)
             playerCoords[id] = { x, y, z }
@@ -166,7 +160,7 @@ AddEventHandler('updadeVidaJogador_summerz', function(id, quantidade, callback)
     if base_summerz then
         local nplayer = vRP.userSource(tonumber(id))
         if nplayer then
-            setHealthOrArmor(nplayer, 1, quantidade)
+            vRPclient.revivePlayer(nplayer, tonumber(quantidade))
             callback(true)
         end
     end
@@ -179,7 +173,7 @@ AddEventHandler('updadeVidaJogadores_summerz', function(quantidade, callback)
         for k, v in pairs(users) do
             local id = vRP.getUserId(k)
             if id then
-                setHealthOrArmor(id, 1, quantidade)
+                vRPclient.revivePlayer(id, tonumber(quantidade))
                 TriggerClientEvent("Notify", id, "sucesso", "Administração recuperou sua vida.")
             end
         end
@@ -193,7 +187,7 @@ AddEventHandler('updateColeteJogador_summerz', function(id, callback)
     if base_summerz then
         local nplayer = vRP.userSource(tonumber(id))
         if nplayer then
-            setHealthOrArmor(nplayer, 2, 0)
+            vRP.setArmour(nplayer, 100)
             callback(true)
         end
     end
