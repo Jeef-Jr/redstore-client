@@ -85,27 +85,33 @@ function gerenciarSalarios(player, gruposDoJogador) {
 
 const onCallbackJogadores = async () => {
   const jogadores = [
-    base_creative && framework_network
+    ...(base_creative && framework_network
       ? await lua(`vRP.Players()`)
       : base_creative
       ? await lua(`vRP.userList()`)
-      : await lua(`vRP.getUsers()`),
+      : await lua(`vRP.getUsers()`)),
   ];
 
-  console.log(jogadores.length);
+  if (jogadores.length > 0) {
+    for (let i = 0; i < jogadores.length; i++) {
+      let id = -1;
 
-  for (let i = 0; i < jogadores.length; i++) {
-    const id = !framework_network ? Object.entries(jogadores[i]).map(([name]) => {
-      return name;
-    }) : jogadores[i]
+      if (base_creative && framework_network) {
+        id = jogadores[i];
+      } else if (base_creative) {
+        id = Object.entries(jogadores[i]).map(([name]) => {
+          return name;
+        });
+      } else {
+        id = jogadores[i];
+      }
 
-    console.log(jogadores[i]);
-    onCallbacks(parseInt(id));
+      onCallbacks(parseInt(id));
+    }
   }
 };
 
 const onCallbacks = async (idUser) => {
-
   console.log("Jogador Online", idUser);
 
   const gruposDoJogador = await sql(
